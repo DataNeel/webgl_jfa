@@ -22,7 +22,7 @@ uniform sampler2D jfa;
 
 void main() {
     vec2 uv = u * .5 + .5;    
-    cc = texture(jfa,uv) * vec4(u.x,u.y,.5, 1.);
+    cc = texture(jfa,uv);
 }`;
 
 //fragment shader for framebuffer
@@ -37,8 +37,8 @@ uniform sampler2D glyph;
 void main() {
     vec2 uv = abs(u);
 
-    // cc = texture(glyph,uv) * vec4(u.x,u.y,.5, 1.);
-    cc = vec4(u.x,u.y,.5,1.);
+    cc = texture(glyph,uv) * vec4(u.x,u.y,.5, 1.);
+    // cc = vec4(u.x,u.y,.5,1.);
 }`;
 
 //function to create shader
@@ -85,6 +85,29 @@ function main() {
     C.style.height = h + 'px';
 
     let positions = Float32Array.of(0, 1, 0, 0, 1, 1, 1, 0);
+
+    ////load glyph into texture
+    // create texture variable for glyph
+
+    var glyph_tex = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0 + 1);
+    gl.bindTexture(gl.TEXTURE_2D, glyph_tex);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    //temporarily make texture black
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255]));
+
+
+    //load real texture
+    var glyphImage = new Image();
+    glyphImage.src = "glyph.png";
+    glyphImage.addEventListener('load', function () {
+    gl.bindTexture(gl.TEXTURE_2D, glyph_tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, glyphImage);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    });
 
     //set up the buffer program
     framebufferProgram = createProgram(src_v, src_buffer);
@@ -147,6 +170,7 @@ function main() {
 
         //framebuffer stuffs
         gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+        gl.bindTexture(gl.TEXTURE_2D,glyph_tex);
         gl.viewport(0,0,resx,resy);
         gl.clearColor(0, 0, 1, 1);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);

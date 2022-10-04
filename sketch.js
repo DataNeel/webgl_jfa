@@ -85,28 +85,28 @@ createProgram = (vertex, fragment) => {
 }
 
 
-//////load glyph into texture
-//create texture variable for glyph
+////load glyph into texture
+create texture variable for glyph
 
-// var glyph_tex = gl.createTexture();
-// gl.activeTexture(gl.TEXTURE0 + 1);
-// gl.bindTexture(gl.TEXTURE_2D, glyph_tex);
-// gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-// gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-// gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-// gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-// //temporarily make texture black
-// gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255]));
+var glyph_tex = gl.createTexture();
+gl.activeTexture(gl.TEXTURE0 + 1);
+gl.bindTexture(gl.TEXTURE_2D, glyph_tex);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+//temporarily make texture black
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255]));
 
 
-// //load real texture
-// var glyphImage = new Image();
-// glyphImage.src = "glyph.png";
-// glyphImage.addEventListener('load', function () {
-//   gl.bindTexture(gl.TEXTURE_2D, glyph_tex);
-//   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, glyphImage);
-//   gl.generateMipmap(gl.TEXTURE_2D);
-// });
+//load real texture
+var glyphImage = new Image();
+glyphImage.src = "glyph.png";
+glyphImage.addEventListener('load', function () {
+  gl.bindTexture(gl.TEXTURE_2D, glyph_tex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, glyphImage);
+  gl.generateMipmap(gl.TEXTURE_2D);
+});
 
 
 //create the buffer program
