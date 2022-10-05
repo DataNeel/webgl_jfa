@@ -1,8 +1,13 @@
-https://gamedev.net/forums/topic/623759-glsl-float-packing/4933327/
+https://www.shadertoy.com/results?query=tag=jfa
+https://blog.demofox.org/2016/02/29/fast-voronoi-diagrams-and-distance-dield-textures-on-the-gpu-with-the-jump-flooding-algorithm/
+https://shaderbits.com/blog/various-distance-field-generation-techniques
+https://bgolus.medium.com/the-quest-for-very-wide-outlines-ba82ed442cd9
+https://www.youtube.com/watch?v=A0pxY9QsgJE
+https://www.youtube.com/watch?v=AT0jTugdi0M
 
-https://webglfundamentals.org/webgl/lessons/webgl-3d-perspective.html
+https://github.com/cacheflowe/haxademic/blob/master/data/haxademic/shaders/filters/jump-flood.glsl
+https://github.com/cacheflowe/haxademic/blob/master/src/com/haxademic/demo/draw/filters/shaders/Demo_JumpFlood_SDF.java
 
-https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
 
 https://editor.p5js.org/yangshuzhan/sketches/SdzrD0Pqv
 
@@ -11,7 +16,6 @@ https://editor.p5js.org/yangshuzhan/sketches/SdzrD0Pqv
 2. load texture into main shader
 3. load texture into frame buffer
 4. show frame buffer in main shader
-
 5. make framebuffer 32 bit
 
 
