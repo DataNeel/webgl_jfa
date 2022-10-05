@@ -21,7 +21,7 @@ uniform float time;
 uniform sampler2D jfa;
 
 void main() {
-    vec2 uv = u * .5 + .5;    
+    vec2 uv = abs(u);
     cc = texture(jfa,uv);
 }`;
 
@@ -35,7 +35,8 @@ uniform vec2 res;
 uniform sampler2D glyph;
 
 void main() {
-    vec2 uv = abs(u);
+    vec2 uv = u * .5 + .5;    
+    
 
     cc = texture(glyph,uv) * vec4(u.x,u.y,.5, 1.);
     // cc = vec4(u.x,u.y,.5,1.);
@@ -71,6 +72,8 @@ function main() {
     C = ({body} = D = document).createElement('canvas');
     body.appendChild(C);
     gl = C.getContext('webgl2');
+    gl.getExtension('EXT_color_buffer_float');
+    gl.getExtension('OES_texture_float_linear')
 
     //set dimensions
     let resx, resy;
