@@ -25,8 +25,8 @@ void main() {
     cc = texture(jfa,uv);
 }`;
 
-//fragment shader for framebuffer
-src_buffer = `#version 300 es
+//fragment shader for ping
+src_ping = `#version 300 es
 precision highp float;
 
 in vec2 u;
@@ -35,10 +35,26 @@ uniform vec2 res;
 uniform sampler2D glyph;
 
 void main() {
-    vec2 uv = u * .5 + .5;    
+    vec2 uv = u * .5 + .5;
+    vec2 onePixel = vec2(50) / vec2(textureSize(glyph, 0));
     
+    vec4 t = texture(glyph,uv) + texture(glyph,uv+vec2(onePixel));
+    cc = t * vec4(u.x,u.y,.5, 1.);
+    // cc = vec4(u.x,u.y,.5,1.);
+}`;
 
-    cc = texture(glyph,uv) * vec4(u.x,u.y,.5, 1.);
+//fragment shader for pong
+src_pong = `#version 300 es
+precision highp float;
+
+in vec2 u;
+out vec4 cc;
+uniform vec2 res;
+uniform sampler2D ping;
+
+void main() {
+    vec2 uv = u * .5 + .5;
+    cc = texture(ping,uv);
     // cc = vec4(u.x,u.y,.5,1.);
 }`;
 
@@ -67,6 +83,8 @@ createProgram = (vertex, fragment) => {
     return program;
 }
 
+
+
 function main() {
     //make canvas
     C = ({body} = D = document).createElement('canvas');
@@ -89,11 +107,11 @@ function main() {
 
     let positions = Float32Array.of(0, 1, 0, 0, 1, 1, 1, 0);
 
-    ////load glyph into texture
+////load glyph into texture
     // create texture variable for glyph
 
     var glyph_tex = gl.createTexture();
-    gl.activeTexture(gl.TEXTURE0 + 1);
+    gl.activeTexture(gl.TEXTURE0 + 0);
     gl.bindTexture(gl.TEXTURE_2D, glyph_tex);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -107,32 +125,58 @@ function main() {
     var glyphImage = new Image();
     glyphImage.src = "glyph.png";
     glyphImage.addEventListener('load', function () {
-    gl.bindTexture(gl.TEXTURE_2D, glyph_tex);
+    gl.activeTexture(gl.TEXTURE0+0);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, glyphImage);
     gl.generateMipmap(gl.TEXTURE_2D);
     });
 
-    //set up the buffer program
-    framebufferProgram = createProgram(src_v, src_buffer);
-    loc_res_framebuffer = gl.getUniformLocation(framebufferProgram, 'res');
-    loc_glyph_framebuffer = gl.getUniformLocation(framebufferProgram, 'glyph');
-    loc_a_framebuffer = gl.getAttribLocation(framebufferProgram, 'a');
+//ping program
+    //set up the ping program
+    pingProgram = createProgram(src_v, src_ping);
+    loc_res_ping = gl.getUniformLocation(pingProgram, 'res');
+    loc_glyph_ping = gl.getUniformLocation(pingProgram, 'glyph');
+    loc_a_ping = gl.getAttribLocation(pingProgram, 'a');
+    gl.useProgram(pingProgram);
+    gl.uniform1i(loc_glyph_ping,0);
 
-    //create a buffer and vao for framebuffer
-    positionBuffer_framebuffer = gl.createBuffer();
-    vao_framebuffer = gl.createVertexArray();
-    gl.bindVertexArray(vao_framebuffer);
-    gl.enableVertexAttribArray(loc_a_framebuffer);
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer_framebuffer);
+    //create a buffer and vao for ping
+    positionBuffer_ping = gl.createBuffer();
+    vao_ping = gl.createVertexArray();
+    gl.bindVertexArray(vao_ping);
+    gl.enableVertexAttribArray(loc_a_ping);
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer_ping);
     gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-    gl.vertexAttribPointer(loc_a_framebuffer, 2, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(loc_a_ping, 2, gl.FLOAT, false, 0, 0);
 
+//pong program
+    //set up the pong program
+    pongProgram = createProgram(src_v, src_pong);
+    loc_res_pong = gl.getUniformLocation(pongProgram, 'res');
+    loc_ping_pong = gl.getUniformLocation(pongProgram, 'ping');
+    loc_a_pong = gl.getAttribLocation(pongProgram, 'a');
+    gl.useProgram(pongProgram);
+    gl.uniform1i(loc_ping_pong,1);
+
+    //create a buffer and vao for ping
+    positionBuffer_pong = gl.createBuffer();
+    vao_pong = gl.createVertexArray();
+    gl.bindVertexArray(vao_pong);
+    gl.enableVertexAttribArray(loc_a_pong);
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer_pong);
+    gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(loc_a_pong, 2, gl.FLOAT, false, 0, 0);
+
+
+//main program
     //set up main canvas program
     mainProgram = createProgram(src_v, src_f);
+    gl.useProgram(mainProgram);
     loc_res_main = gl.getUniformLocation(mainProgram, 'res');
     loc_time_main = gl.getUniformLocation(mainProgram, 'time');
     loc_buffer_main = gl.getUniformLocation(mainProgram, 'jfa');
     loc_a_main = gl.getAttribLocation(mainProgram, 'a');
+    gl.uniform1i(loc_buffer_main,1);
+    
 
     //create a buffer and vao for main canvas
     positionBuffer_main = gl.createBuffer();
@@ -144,23 +188,47 @@ function main() {
     gl.vertexAttribPointer(loc_a_main, 2, gl.FLOAT, false, 0, 0);
 
 
-    ////////////////////load glyph into the frame buffer
-    //create buffer texture
-    var framebufferTex = gl.createTexture();
-    gl.activeTexture(gl.TEXTURE0 + 0);
-    gl.bindTexture(gl.TEXTURE_2D, framebufferTex);
+
+
+//ping fbo and tex
+    //create ping framebuffer
+    const ping = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, ping);
+    const pingAttachmentPoint = gl.COLOR_ATTACHMENT0;
+
+    //create ping texture
+    var pingTex = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0 + 1);
+    gl.bindTexture(gl.TEXTURE_2D, pingTex);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, resx, resy, 0, gl.RGBA, gl.FLOAT, null);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, pingAttachmentPoint, gl.TEXTURE_2D, pingTex, 0);
 
-    //create framebuffer
-    const fb = gl.createFramebuffer();
-    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
-    const attachmentPoint = gl.COLOR_ATTACHMENT0;
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, attachmentPoint, gl.TEXTURE_2D, framebufferTex, 0);
+
+//pong fbo and tex
+    //create pong framebuffer
+    const pong = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, pong);
+    const pongAttachmentPoint = gl.COLOR_ATTACHMENT0;
     
-    var then = 0;
+    
+
+    //create pong texture
+    var pongTex = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0 + 2);
+    gl.bindTexture(gl.TEXTURE_2D, pongTex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, resx, resy, 0, gl.RGBA, gl.FLOAT, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, pingAttachmentPoint, gl.TEXTURE_2D, pongTex, 0);
+
+
+ 
+
+   var then = 0;
     requestAnimationFrame(drawScene);
 
     function drawScene(time) {
@@ -172,18 +240,23 @@ function main() {
         then = time;
 
         //framebuffer stuffs
-        gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
-        gl.bindTexture(gl.TEXTURE_2D,glyph_tex);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, ping);
+        
         gl.viewport(0,0,resx,resy);
         gl.clearColor(0, 0, 1, 1);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        gl.useProgram(framebufferProgram);
-        gl.bindVertexArray(vao_framebuffer);
+        gl.useProgram(pingProgram);
+        
+        gl.bindVertexArray(vao_ping);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+        for (let i = 0; i < 10; i++) {
+            
+        }
+
     
         //main canvas stuffs
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        gl.bindTexture(gl.TEXTURE_2D, framebufferTex);
         gl.viewport(0,0,resx,resy);
         gl.clearColor(0, 0, 1, 1);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
