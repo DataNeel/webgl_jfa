@@ -2,15 +2,12 @@ let firstframe = true;
 // vertex shader 
 src_v = `#version 300 es
 precision highp float;
-
 in vec2 a;
 out vec2 u;
-
 void main() {
   u = a * 2. - 1.;
   gl_Position = vec4(u,0,1);
 }`;
-
 // fragment shader for main canvas
 src_f = `#version 300 es
 precision highp float;
@@ -22,14 +19,13 @@ uniform float time;
 uniform sampler2D jfa;
 
 void main() {
-    vec2 uv = (u * .5 + .5);
+    vec2 uv = gl_FragCoord.xy/res;
     vec4 t = texture(jfa,uv);
-    float dist = sin(distance(vec2(t.x,t.y),uv)*100.-time*5.);
+    float dist = sin(distance(vec2(t.x,t.y),uv)*100.+time);
     cc = vec4(dist, dist, dist, 1.0);
     // cc = t;
-    // cc = vec4(uv.x,uv.y,0.,1.);
+    cc.a = 1.;
 }`;
-
 //fragment shader for init
 src_init = `#version 300 es
 precision highp float;
@@ -44,46 +40,44 @@ void main() {
     cc=vec4(999);
     float t = step(.1,texture(glyph,uv).r);
     if(t>0.)cc=vec4(uv,0,1);
-    
-
-    
-    
 }`;
 
 //fragment shader for ping
 src_ping = `#version 300 es
 precision highp float;
-
 in vec2 u;
-
 out vec4 cc;
 uniform vec2 res;
 uniform sampler2D pong;
 uniform float jfa_step;
+uniform float frame;
 
 void main() {
-    vec2 uv = u * .5 + .5;
-    float onePixel = (jfa_step+.5) / vec2(textureSize(pong, 0)).x;
-    vec4 t = vec4(0.);
-    float bestDist = 99999.;
-    for (float i = -1.; i <=1.; i++) {
-        for (float j = -1.; j <=1.; j++) {
-            vec2 uv_s = uv+vec2(i*onePixel,j*onePixel);
-            vec4 t2 = texture(pong,uv_s);
-            float new_dist = length(t2.xy-uv);
-            if (t2.x>0. && t2.y>0. && new_dist<bestDist) {
-                t = t2;
-                bestDist = new_dist;
-            }
-        }
-    }
-    cc = t;
-// cc = vec4(u.x,u.y,0.,1.);
+    vec2 uv = gl_FragCoord.xy/res;
+	// cc+=frame/8.;
+   // vec2 uv = u * .5 + .5;
+   vec2 onePixel = vec2(.5) / pow(2.,frame);
+   vec4 t = vec4(0.);
+   float bestDist = 99999.;
+   for (float i = -1.; i <=1.; i++) {
+       for (float j = -1.; j <=1.; j++) {
+		 // float j = 0.;
+           vec2 uv_s = fract(uv+vec2(i,j)*onePixel);
+           vec4 t2 = texelFetch(pong,ivec2(uv_s*res),0);
+           float new_dist = length(t2.xy-uv);
+		 // if(i==1.){cc=vec4(new_dist);return;}
+           if (new_dist<bestDist) {
+               t = t2;
+               bestDist = new_dist;
+           }
+       }
+   }
+	cc=t;//+texture(pong, fract(uv));
+	// cc/=2.;
+   // cc = ;
+////cc.a=1.;
 }`;
-
-
-let steps_override = 10.;
-
+let steps_override = 8.;
 
 //fragment shader for pong
 src_pong = `#version 300 es
@@ -95,9 +89,8 @@ uniform vec2 res;
 uniform sampler2D ping;
 
 void main() {
-    vec2 uv = u * .5 + .5;
+    vec2 uv = gl_FragCoord.xy/res;
     cc = texture(ping,uv);
-    // cc = texelFetch(ping,ivec2(gl_FragCoord.xy),1);
 }`;
 
 //function to create shader
@@ -124,7 +117,6 @@ createProgram = (vertex, fragment) => {
     }
     return program;
 }
-
 
 function main() {
     //make canvas
@@ -161,13 +153,12 @@ function main() {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     //temporarily make texture black
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255]));
-
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 100, 100, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([...Array(100**2)].map(_=>[0, 0, 0, 255]).flat()));
 
     //load real texture
     var glyphImage = new Image();
-    // glyphImage.src = "glyph.png";
-    glyphImage.src = "squarecircle.png";
+    glyphImage.src = "glyph.png";
+    // glyphImage.src = "squarecircle.png";
     glyphImage.addEventListener('load', function () {
     gl.activeTexture(gl.TEXTURE0+0);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, glyphImage);
@@ -178,6 +169,8 @@ function main() {
     //set up the init program
     initProgram = createProgram(src_v, src_init);
     loc_res_init = gl.getUniformLocation(initProgram, 'res');
+		gl.useProgram(initProgram)
+    gl.uniform2f(loc_res_init,resx,resy);
     loc_glyph_init = gl.getUniformLocation(initProgram, 'glyph');
     loc_a_init = gl.getAttribLocation(initProgram, 'a');
     gl.useProgram(initProgram);
@@ -187,9 +180,12 @@ function main() {
     //set up the ping program
     pingProgram = createProgram(src_v, src_ping);
     loc_res_ping = gl.getUniformLocation(pingProgram, 'res');
+		gl.useProgram(pingProgram)
+		gl.uniform2f(loc_res_ping,resx,resy);
     loc_pong_ping = gl.getUniformLocation(pingProgram, 'pong');
     loc_a_ping = gl.getAttribLocation(pingProgram, 'a');
     loc_step_ping = gl.getUniformLocation(pingProgram,'jfa_step');
+    loc_frame_ping = gl.getUniformLocation(pingProgram,'frame');
     gl.useProgram(pingProgram);
     gl.uniform1i(loc_pong_ping,0);
 
@@ -206,6 +202,8 @@ function main() {
     //set up the pong program
     pongProgram = createProgram(src_v, src_pong);
     loc_res_pong = gl.getUniformLocation(pongProgram, 'res');
+		gl.useProgram(pongProgram)
+    gl.uniform2f(loc_res_pong,resx,resy);
     loc_ping_pong = gl.getUniformLocation(pongProgram, 'ping');
     loc_a_pong = gl.getAttribLocation(pongProgram, 'a');
     gl.useProgram(pongProgram);
@@ -226,6 +224,7 @@ function main() {
     mainProgram = createProgram(src_v, src_f);
     gl.useProgram(mainProgram);
     loc_res_main = gl.getUniformLocation(mainProgram, 'res');
+    gl.uniform2f(loc_res_main,resx,resy);
     loc_time_main = gl.getUniformLocation(mainProgram, 'time');
     loc_buffer_main = gl.getUniformLocation(mainProgram, 'jfa');
     loc_a_main = gl.getAttribLocation(mainProgram, 'a');
@@ -255,7 +254,7 @@ function main() {
     gl.activeTexture(gl.TEXTURE0 + 1);
     gl.bindTexture(gl.TEXTURE_2D, pingTex);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, resx, resy, 0, gl.RGBA, gl.FLOAT, null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, pingAttachmentPoint, gl.TEXTURE_2D, pingTex, 0);
@@ -272,7 +271,7 @@ function main() {
     gl.activeTexture(gl.TEXTURE0 + 2);
     gl.bindTexture(gl.TEXTURE_2D, pongTex);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, resx, resy, 0, gl.RGBA, gl.FLOAT, null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, pongAttachmentPoint, gl.TEXTURE_2D, pongTex, 0);
@@ -306,6 +305,7 @@ function main() {
         let steps = Math.ceil(Math.log2(resx));
         firstframe && console.log("steps: "+steps);
         steps = steps_override;
+			let frame=0
         for (let i = 0; i <steps; i++) {
             //pong
             gl.bindFramebuffer(gl.FRAMEBUFFER,pong);
@@ -327,9 +327,11 @@ function main() {
             let step = 2**(Math.log2(resx)-i-1);
             firstframe && console.log(step);
             gl.uniform1f(loc_step_ping,step);
+            gl.uniform1f(loc_frame_ping,frame);
             gl.bindVertexArray(vao_ping);
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
+					frame++
         }
 
     
