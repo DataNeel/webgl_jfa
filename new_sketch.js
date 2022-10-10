@@ -43,6 +43,7 @@ void main() {
     vec2 uv = u * .5 + .5;
     
     vec4 t = texture(glyph,uv);
+    // vec4 t =  texelFetch(glyph,ivec2(gl_FragCoord.xy),1);
     if (t.x < .99 || t.y < .99) {
         t = vec4(0.0,0.0,0.0,1.);
     }
@@ -55,6 +56,7 @@ src_ping = `#version 300 es
 precision highp float;
 
 in vec2 u;
+
 out vec4 cc;
 uniform vec2 res;
 uniform sampler2D pong;
@@ -96,6 +98,7 @@ uniform sampler2D ping;
 void main() {
     vec2 uv = u * .5 + .5;
     cc = texture(ping,uv);
+    // cc = texelFetch(ping,ivec2(gl_FragCoord.xy),1);
 }`;
 
 //function to create shader
