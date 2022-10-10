@@ -41,13 +41,12 @@ uniform sampler2D glyph;
 
 void main() {
     vec2 uv = u * .5 + .5;
+    cc=vec4(999);
+    float t = step(.1,texture(glyph,uv).r);
+    if(t>0.)cc=vec4(uv,0,1);
     
-    vec4 t = texture(glyph,uv);
-    // vec4 t =  texelFetch(glyph,ivec2(gl_FragCoord.xy),1);
-    if (t.x < .99 || t.y < .99) {
-        t = vec4(0.0,0.0,0.0,1.);
-    }
-    cc = t.x * vec4(uv.x,uv.y,.0,1.);
+
+    
     
 }`;
 
@@ -83,7 +82,7 @@ void main() {
 }`;
 
 
-let steps_override = 6.;
+let steps_override = 10.;
 
 
 //fragment shader for pong
@@ -168,7 +167,7 @@ function main() {
     //load real texture
     var glyphImage = new Image();
     // glyphImage.src = "glyph.png";
-    glyphImage.src = "glyph.png";
+    glyphImage.src = "squarecircle.png";
     glyphImage.addEventListener('load', function () {
     gl.activeTexture(gl.TEXTURE0+0);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, glyphImage);
@@ -256,7 +255,7 @@ function main() {
     gl.activeTexture(gl.TEXTURE0 + 1);
     gl.bindTexture(gl.TEXTURE_2D, pingTex);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, resx, resy, 0, gl.RGBA, gl.FLOAT, null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, pingAttachmentPoint, gl.TEXTURE_2D, pingTex, 0);
@@ -273,7 +272,7 @@ function main() {
     gl.activeTexture(gl.TEXTURE0 + 2);
     gl.bindTexture(gl.TEXTURE_2D, pongTex);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, resx, resy, 0, gl.RGBA, gl.FLOAT, null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, pongAttachmentPoint, gl.TEXTURE_2D, pongTex, 0);
