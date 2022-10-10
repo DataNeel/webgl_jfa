@@ -25,8 +25,8 @@ void main() {
     vec2 uv = (u * .5 + .5);
     vec4 t = texture(jfa,uv);
     float dist = sin(distance(vec2(t.x,t.y),uv)*100.-time*5.);
-    cc = vec4(dist, dist, dist, 1.0);
-    // cc = t;
+    // cc = vec4(dist, dist, dist, 1.0);
+    cc = t;
     // cc = vec4(uv.x,uv.y,0.,1.);
 }`;
 
@@ -35,19 +35,15 @@ src_init = `#version 300 es
 precision highp float;
 
 in vec2 u;
-out vec4 cc;
+out ivec2 cc;
 uniform vec2 res;
 uniform sampler2D glyph;
 
 void main() {
-    vec2 uv = u * .5 + .5;
+    // ivec2 tc = ivec2(gl_FragCoord+.5);
     
-    vec4 t = texture(glyph,uv);
-    // vec4 t =  texelFetch(glyph,ivec2(gl_FragCoord.xy),1);
-    if (t.x < .99 || t.y < .99) {
-        t = vec4(0.0,0.0,0.0,1.);
-    }
-    cc = t.x * vec4(uv.x,uv.y,.0,1.);
+    vec4 t =  texelFetch(glyph,ivec2(gl_FragCoord.xy)/2,1);
+    cc = int(t.x) * ivec2(gl_FragCoord.x,gl_FragCoord.y);
     
 }`;
 
@@ -57,33 +53,32 @@ precision highp float;
 
 in vec2 u;
 
-out vec4 cc;
+out ivec2 cc;
 uniform vec2 res;
 uniform sampler2D pong;
 uniform float jfa_step;
 
 void main() {
-    vec2 uv = u * .5 + .5;
-    float onePixel = (jfa_step+.5) / vec2(textureSize(pong, 0)).x;
-    vec4 t = vec4(0.);
+    ivec2 tc = ivec2(gl_FragCoord.xy);
+    int offset = int(jfa_step+.5);
+    ivec2 t = ivec2(-1);
     float bestDist = 99999.;
-    for (float i = -1.; i <=1.; i++) {
-        for (float j = -1.; j <=1.; j++) {
-            vec2 uv_s = uv+vec2(i*onePixel,j*onePixel);
-            vec4 t2 = texture(pong,uv_s);
-            float new_dist = length(t2.xy-uv);
-            if (t2.x>0. && t2.y>0. && new_dist<bestDist) {
+    for (int i = -1; i <=1; i++) {
+        for (int j = -1; j <=1; j++) {
+            ivec2 tc2 = tc+ivec2(i*offset,j*offset);
+            ivec2 t2 = ivec2(texelFetch(pong,tc2,0).xy);
+            float new_dist = distance(vec2(tc2),vec2(tc));
+            if (t2.x>0 && t2.y>0 && new_dist<bestDist) {
                 t = t2;
                 bestDist = new_dist;
             }
         }
     }
     cc = t;
-// cc = vec4(u.x,u.y,0.,1.);
 }`;
 
 
-let steps_override = 6.;
+let steps_override = 3.;
 
 
 //fragment shader for pong
@@ -91,14 +86,13 @@ src_pong = `#version 300 es
 precision highp float;
 
 in vec2 u;
-out vec4 cc;
+out ivec2 cc;
 uniform vec2 res;
 uniform sampler2D ping;
 
 void main() {
-    vec2 uv = u * .5 + .5;
-    cc = texture(ping,uv);
-    // cc = texelFetch(ping,ivec2(gl_FragCoord.xy),1);
+    ivec2 tc = ivec2(gl_FragCoord.xy);
+    cc = ivec2(texelFetch(ping,tc,0).xy);
 }`;
 
 //function to create shader
@@ -255,7 +249,7 @@ function main() {
     var pingTex = gl.createTexture();
     gl.activeTexture(gl.TEXTURE0 + 1);
     gl.bindTexture(gl.TEXTURE_2D, pingTex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, resx, resy, 0, gl.RGBA, gl.FLOAT, null);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RG16I, resx, resy, 0, gl.RG_INTEGER, gl.SHORT, null);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -272,7 +266,7 @@ function main() {
     var pongTex = gl.createTexture();
     gl.activeTexture(gl.TEXTURE0 + 2);
     gl.bindTexture(gl.TEXTURE_2D, pongTex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, resx, resy, 0, gl.RGBA, gl.FLOAT, null);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RG16I, resx, resy, 0, gl.RG_INTEGER, gl.SHORT, null);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -335,14 +329,14 @@ function main() {
 
     
         //main canvas stuffs
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        gl.viewport(0,0,resx,resy);
-        gl.clearColor(0, 0, 1, 1);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        gl.useProgram(mainProgram);
-        gl.uniform1f(loc_time_main,time);
-        gl.bindVertexArray(vao_main);
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        // gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        // gl.viewport(0,0,resx,resy);
+        // gl.clearColor(0, 0, 1, 1);
+        // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        // gl.useProgram(mainProgram);
+        // gl.uniform1f(loc_time_main,time);
+        // gl.bindVertexArray(vao_main);
+        // gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
         firstframe = false;
         requestAnimationFrame(drawScene);
     }
