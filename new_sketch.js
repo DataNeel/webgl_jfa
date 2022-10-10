@@ -1,3 +1,4 @@
+let firstframe = true;
 // vertex shader 
 src_v = `#version 300 es
 precision highp float;
@@ -21,12 +22,16 @@ uniform float time;
 uniform sampler2D jfa;
 
 void main() {
-    vec2 uv = abs(u);
-    cc = texture(jfa,uv);
+    vec2 uv = (u * .5 + .5);
+    vec4 t = texture(jfa,uv);
+    float dist = sin(distance(vec2(t.x,t.y),uv)*100.-time*5.);
+    cc = vec4(dist, dist, dist, 1.0);
+    // cc = t;
+    // cc = vec4(uv.x,uv.y,0.,1.);
 }`;
 
-//fragment shader for ping
-src_ping = `#version 300 es
+//fragment shader for init
+src_init = `#version 300 es
 precision highp float;
 
 in vec2 u;
@@ -36,12 +41,48 @@ uniform sampler2D glyph;
 
 void main() {
     vec2 uv = u * .5 + .5;
-    vec2 onePixel = vec2(50) / vec2(textureSize(glyph, 0));
     
-    vec4 t = texture(glyph,uv) + texture(glyph,uv+vec2(onePixel));
-    cc = t * vec4(u.x,u.y,.5, 1.);
-    // cc = vec4(u.x,u.y,.5,1.);
+    vec4 t = texture(glyph,uv);
+    if (t.x < .99 || t.y < .99) {
+        t = vec4(0.0,0.0,0.0,1.);
+    }
+    cc = t.x * vec4(uv.x,uv.y,.0,1.);
+    
 }`;
+
+//fragment shader for ping
+src_ping = `#version 300 es
+precision highp float;
+
+in vec2 u;
+out vec4 cc;
+uniform vec2 res;
+uniform sampler2D pong;
+uniform float jfa_step;
+
+void main() {
+    vec2 uv = u * .5 + .5;
+    float onePixel = (jfa_step+.5) / vec2(textureSize(pong, 0)).x;
+    vec4 t = vec4(0.);
+    float bestDist = 99999.;
+    for (float i = -1.; i <=1.; i++) {
+        for (float j = -1.; j <=1.; j++) {
+            vec2 uv_s = uv+vec2(i*onePixel,j*onePixel);
+            vec4 t2 = texture(pong,uv_s);
+            float new_dist = length(t2.xy-uv);
+            if (t2.x>0. && t2.y>0. && new_dist<bestDist) {
+                t = t2;
+                bestDist = new_dist;
+            }
+        }
+    }
+    cc = t;
+// cc = vec4(u.x,u.y,0.,1.);
+}`;
+
+
+let steps_override = 6.;
+
 
 //fragment shader for pong
 src_pong = `#version 300 es
@@ -55,7 +96,6 @@ uniform sampler2D ping;
 void main() {
     vec2 uv = u * .5 + .5;
     cc = texture(ping,uv);
-    // cc = vec4(u.x,u.y,.5,1.);
 }`;
 
 //function to create shader
@@ -84,14 +124,14 @@ createProgram = (vertex, fragment) => {
 }
 
 
-
 function main() {
     //make canvas
     C = ({body} = D = document).createElement('canvas');
     body.appendChild(C);
     gl = C.getContext('webgl2');
     gl.getExtension('EXT_color_buffer_float');
-    gl.getExtension('OES_texture_float_linear')
+    gl.getExtension('OES_texture_float_linear');
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
     //set dimensions
     let resx, resy;
@@ -99,9 +139,10 @@ function main() {
     h = innerHeight,
     dpr = devicePixelRatio;
     let minRes = Math.min(w, h);
-    h = w = minRes * .75;
+    h = w = minRes * 1.;
     resx = C.width = w * dpr | 0;
     resy = C.height = h * dpr | 0;
+    // resx, resy = 1024;
     C.style.width = w + 'px';
     C.style.height = h + 'px';
 
@@ -123,6 +164,7 @@ function main() {
 
     //load real texture
     var glyphImage = new Image();
+    // glyphImage.src = "glyph.png";
     glyphImage.src = "glyph.png";
     glyphImage.addEventListener('load', function () {
     gl.activeTexture(gl.TEXTURE0+0);
@@ -130,14 +172,24 @@ function main() {
     gl.generateMipmap(gl.TEXTURE_2D);
     });
 
+//init program
+    //set up the init program
+    initProgram = createProgram(src_v, src_init);
+    loc_res_init = gl.getUniformLocation(initProgram, 'res');
+    loc_glyph_init = gl.getUniformLocation(initProgram, 'glyph');
+    loc_a_init = gl.getAttribLocation(initProgram, 'a');
+    gl.useProgram(initProgram);
+    gl.uniform1i(loc_glyph_init,0);
+
 //ping program
     //set up the ping program
     pingProgram = createProgram(src_v, src_ping);
     loc_res_ping = gl.getUniformLocation(pingProgram, 'res');
-    loc_glyph_ping = gl.getUniformLocation(pingProgram, 'glyph');
+    loc_pong_ping = gl.getUniformLocation(pingProgram, 'pong');
     loc_a_ping = gl.getAttribLocation(pingProgram, 'a');
+    loc_step_ping = gl.getUniformLocation(pingProgram,'jfa_step');
     gl.useProgram(pingProgram);
-    gl.uniform1i(loc_glyph_ping,0);
+    gl.uniform1i(loc_pong_ping,0);
 
     //create a buffer and vao for ping
     positionBuffer_ping = gl.createBuffer();
@@ -213,8 +265,6 @@ function main() {
     gl.bindFramebuffer(gl.FRAMEBUFFER, pong);
     const pongAttachmentPoint = gl.COLOR_ATTACHMENT0;
     
-    
-
     //create pong texture
     var pongTex = gl.createTexture();
     gl.activeTexture(gl.TEXTURE0 + 2);
@@ -223,7 +273,7 @@ function main() {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, pingAttachmentPoint, gl.TEXTURE_2D, pongTex, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, pongAttachmentPoint, gl.TEXTURE_2D, pongTex, 0);
 
 
  
@@ -239,19 +289,45 @@ function main() {
         // Remember the current time for the next frame.
         then = time;
 
-        //framebuffer stuffs
+        //ping
         gl.bindFramebuffer(gl.FRAMEBUFFER, ping);
         
         gl.viewport(0,0,resx,resy);
         gl.clearColor(0, 0, 1, 1);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        gl.useProgram(pingProgram);
+        gl.useProgram(initProgram);
+        gl.uniform1i(loc_glyph_init,0);
         
         gl.bindVertexArray(vao_ping);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        firstframe && console.log(resx);
+        let steps = Math.ceil(Math.log2(resx));
+        firstframe && console.log("steps: "+steps);
+        steps = steps_override;
+        for (let i = 0; i <steps; i++) {
+            //pong
+            gl.bindFramebuffer(gl.FRAMEBUFFER,pong);
+            gl.viewport(0,0,resx,resy);
+            gl.clearColor(0, 0, 1, 1);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            gl.useProgram(pongProgram);
+            gl.uniform1i(loc_ping_pong,1);
+            gl.bindVertexArray(vao_pong);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
-        for (let i = 0; i < 10; i++) {
-            
+            //ping
+            gl.bindFramebuffer(gl.FRAMEBUFFER,ping);
+            gl.viewport(0,0,resx,resy);
+            gl.clearColor(0, 0, 1, 1);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            gl.useProgram(pingProgram);
+            gl.uniform1i(loc_pong_ping,2);
+            let step = 2**(Math.log2(resx)-i-1);
+            firstframe && console.log(step);
+            gl.uniform1f(loc_step_ping,step);
+            gl.bindVertexArray(vao_ping);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
         }
 
     
@@ -261,9 +337,10 @@ function main() {
         gl.clearColor(0, 0, 1, 1);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.useProgram(mainProgram);
+        gl.uniform1f(loc_time_main,time);
         gl.bindVertexArray(vao_main);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
+        firstframe = false;
         requestAnimationFrame(drawScene);
     }
 
