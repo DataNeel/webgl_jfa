@@ -21,8 +21,23 @@ uniform sampler2D jfa;
 void main() {
     vec2 uv = gl_FragCoord.xy/res;
     vec4 t = texture(jfa,uv);
-    float dist = sin(distance(vec2(t.x,t.y),uv)*100.+time);
-    cc = vec4(dist, dist, dist, 1.0);
+
+    float d = distance(vec2(t.x,t.y),uv);
+    float dist = sin(d*300.+time*2.)+1.;
+    // dist = dist*step(.00005,d);
+
+    // float dist = (distance(vec2(t.x,t.y),uv)*1.);
+    // float x = sin(time*2.)*.02+.02;
+    // float y = .01;
+    // dist = 1.-(smoothstep(x-y,x,dist)-smoothstep(x,x+y,dist));
+    
+    vec4 c1 = vec4(20, 70, 160,255)/255.;
+    vec4 c2 = vec4(219, 48, 105,255)/255.;
+    
+    
+    // cc = vec4(dist, dist, dist, 1.0);
+    cc = mix(c1,c2,dist/2.);
+
     // cc = t;
     cc.a = 1.;
 }`;
@@ -77,7 +92,7 @@ void main() {
    // cc = ;
 ////cc.a=1.;
 }`;
-let steps_override = 8.;
+let steps_override = 20.;
 
 //fragment shader for pong
 src_pong = `#version 300 es
@@ -157,8 +172,17 @@ function main() {
 
     //load real texture
     var glyphImage = new Image();
-    glyphImage.src = "glyph.png";
+    // glyphImage.src = "glyph.png";
+    // glyphImage.src = "debris2.png"
+    // glyphImage.src = "struct.png";
+    glyphImage.src = "thing.png";
+    // glyphImage.src="simulacra.png";
+    // glyphImage.src="sand.png";
+    // glyphImage.src="lightbright.png";
+    // glyphImage.src="zebra.png";
+    // glyphImage.src="knots.png";
     // glyphImage.src = "squarecircle.png";
+    // glyphImage.src = "randlines2.png";
     glyphImage.addEventListener('load', function () {
     gl.activeTexture(gl.TEXTURE0+0);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, glyphImage);
@@ -304,7 +328,7 @@ function main() {
         firstframe && console.log(resx);
         let steps = Math.ceil(Math.log2(resx));
         firstframe && console.log("steps: "+steps);
-        steps = steps_override;
+         steps = Math.min(steps,steps_override);
 			let frame=0
         for (let i = 0; i <steps; i++) {
             //pong
