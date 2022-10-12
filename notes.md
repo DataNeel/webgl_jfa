@@ -24,10 +24,19 @@ https://editor.p5js.org/yangshuzhan/sketches/SdzrD0Pqv
 3. load texture into frame buffer
 4. show frame buffer in main shader
 5. make framebuffer 32 bit
-
 6. create simple ping pong feedback script
-
-
 7. use ping pong for jfa
 8. display jfa results in main frame
 9. use jfa as distance map
+
+0.5
+new_sketch.js:319 1
+new_sketch.js:319 2
+new_sketch.js:319 4
+new_sketch.js:319 8
+new_sketch.js:319 16
+new_sketch.js:319 32
+new_sketch.js:319 64
+new_sketch.js:319 128
+new_sketch.js:319 256
+new_sketch.js:319 512
