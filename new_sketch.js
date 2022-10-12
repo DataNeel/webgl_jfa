@@ -21,6 +21,7 @@ uniform sampler2D jfa;
 void main() {
     vec2 uv = gl_FragCoord.xy/res;
     vec4 t = texture(jfa,uv);
+<<<<<<< HEAD
 
     float d = distance(vec2(t.x,t.y),uv);
     float dist = sin(d*300.-time*2.)+1.;
@@ -41,34 +42,54 @@ void main() {
     cc *=t;
     // cc = t;
     cc.a = 1.;
+=======
+    float dist = sin(distance(vec2(t.x,t.y),uv)*100.-time*5.);
+    // cc = vec4(dist, dist, dist, 1.0);
+    cc = t;
+    // cc = vec4(uv.x,uv.y,0.,1.);
+>>>>>>> a9d5007a6cae11c772f99037d3495902b939928f
 }`;
 //fragment shader for init
 src_init = `#version 300 es
 precision highp float;
 
 in vec2 u;
-out vec4 cc;
+out ivec2 cc;
 uniform vec2 res;
 uniform sampler2D glyph;
 
 void main() {
+<<<<<<< HEAD
     vec2 uv = u * .5 + .5;
     cc=vec4(999);
     float t = step(.1,texture(glyph,uv).r);
     if(t>0.)cc=vec4(uv,0,1);
+=======
+    // ivec2 tc = ivec2(gl_FragCoord+.5);
+    
+    vec4 t =  texelFetch(glyph,ivec2(gl_FragCoord.xy)/2,1);
+    cc = int(t.x) * ivec2(gl_FragCoord.x,gl_FragCoord.y);
+    
+>>>>>>> a9d5007a6cae11c772f99037d3495902b939928f
 }`;
 
 //fragment shader for ping
 src_ping = `#version 300 es
 precision highp float;
 in vec2 u;
+<<<<<<< HEAD
 out vec4 cc;
+=======
+
+out ivec2 cc;
+>>>>>>> a9d5007a6cae11c772f99037d3495902b939928f
 uniform vec2 res;
 uniform sampler2D pong;
 uniform float jfa_step;
 uniform float frame;
 
 void main() {
+<<<<<<< HEAD
     vec2 uv = gl_FragCoord.xy/res;
 	// cc+=frame/8.;
    // vec2 uv = u * .5 + .5;
@@ -94,19 +115,47 @@ void main() {
 ////cc.a=1.;
 }`;
 let steps_override =15.;
+=======
+    ivec2 tc = ivec2(gl_FragCoord.xy);
+    int offset = int(jfa_step+.5);
+    ivec2 t = ivec2(-1);
+    float bestDist = 99999.;
+    for (int i = -1; i <=1; i++) {
+        for (int j = -1; j <=1; j++) {
+            ivec2 tc2 = tc+ivec2(i*offset,j*offset);
+            ivec2 t2 = ivec2(texelFetch(pong,tc2,0).xy);
+            float new_dist = distance(vec2(tc2),vec2(tc));
+            if (t2.x>0 && t2.y>0 && new_dist<bestDist) {
+                t = t2;
+                bestDist = new_dist;
+            }
+        }
+    }
+    cc = t;
+}`;
+
+
+let steps_override = 3.;
+
+>>>>>>> a9d5007a6cae11c772f99037d3495902b939928f
 
 //fragment shader for pong
 src_pong = `#version 300 es
 precision highp float;
 
 in vec2 u;
-out vec4 cc;
+out ivec2 cc;
 uniform vec2 res;
 uniform sampler2D ping;
 
 void main() {
+<<<<<<< HEAD
     vec2 uv = gl_FragCoord.xy/res;
     cc = texture(ping,uv);
+=======
+    ivec2 tc = ivec2(gl_FragCoord.xy);
+    cc = ivec2(texelFetch(ping,tc,0).xy);
+>>>>>>> a9d5007a6cae11c772f99037d3495902b939928f
 }`;
 
 //function to create shader
@@ -283,7 +332,7 @@ function main() {
     var pingTex = gl.createTexture();
     gl.activeTexture(gl.TEXTURE0 + 1);
     gl.bindTexture(gl.TEXTURE_2D, pingTex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, resx, resy, 0, gl.RGBA, gl.FLOAT, null);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RG16I, resx, resy, 0, gl.RG_INTEGER, gl.SHORT, null);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -300,7 +349,7 @@ function main() {
     var pongTex = gl.createTexture();
     gl.activeTexture(gl.TEXTURE0 + 2);
     gl.bindTexture(gl.TEXTURE_2D, pongTex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, resx, resy, 0, gl.RGBA, gl.FLOAT, null);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RG16I, resx, resy, 0, gl.RG_INTEGER, gl.SHORT, null);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -366,14 +415,14 @@ function main() {
 
     
         //main canvas stuffs
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        gl.viewport(0,0,resx,resy);
-        gl.clearColor(0, 0, 1, 1);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        gl.useProgram(mainProgram);
-        gl.uniform1f(loc_time_main,time);
-        gl.bindVertexArray(vao_main);
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        // gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        // gl.viewport(0,0,resx,resy);
+        // gl.clearColor(0, 0, 1, 1);
+        // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        // gl.useProgram(mainProgram);
+        // gl.uniform1f(loc_time_main,time);
+        // gl.bindVertexArray(vao_main);
+        // gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
         firstframe = false;
         requestAnimationFrame(drawScene);
     }
