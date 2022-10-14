@@ -23,8 +23,9 @@ void main() {
     vec4 t = texture(jfa,uv);
 
     float d = distance(vec2(t.x,t.y),uv);
-    float dist = sin(d*300.-time*2.)+1.;
-    dist = dist*step(.00005,d);
+    float dist = sin(d*650.-time*5.)+1.*(d*30.);
+    // dist = dist*step(.00005,d);
+    // dist = d;
 
     // float dist = (distance(vec2(t.x,t.y),uv)*1.);
     // float x = sin(time*2.)*.02+.02;
@@ -38,7 +39,7 @@ void main() {
 
 
 
-    cc *=t;
+    cc *=vec4(t.r,1.-t.r,t.g,1.);
     // cc = t;
     cc.a = 1.;
 }`;
@@ -93,7 +94,7 @@ void main() {
    // cc = ;
 ////cc.a=1.;
 }`;
-let steps_override =6.;
+let steps_override =15.;
 
 //fragment shader for pong
 src_pong = `#version 300 es
@@ -174,7 +175,7 @@ function main() {
     //load real texture
     var glyphImage = new Image();
     // glyphImage.src = "glyph.png";
-    glyphImage.src = "thinglyph.png";
+    // glyphImage.src = "thinglyph.png";
     // glyphImage.src = "debris2.png"
     // glyphImage.src = "struct.png";
     // glyphImage.src = "thing.png";
@@ -186,9 +187,10 @@ function main() {
     // glyphImage.src="sand.png";
     // glyphImage.src="lightbright.png";
     // glyphImage.src="zebra.png";
-    // glyphImage.src="knots.png";
+    glyphImage.src="knots.png";
+    glyphImage.src="glyph2.png";
     // glyphImage.src = "squarecircle.png";
-    glyphImage.src = "randlines2.png";
+    // glyphImage.src = "randlines2.png";
     glyphImage.addEventListener('load', function () {
     gl.activeTexture(gl.TEXTURE0+0);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, glyphImage);
