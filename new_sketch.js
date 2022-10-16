@@ -23,25 +23,15 @@ void main() {
     vec4 t = texture(jfa,uv);
 
     float d = distance(vec2(t.x,t.y),uv);
-    float dist = sin(d*650.-time*2.)+1.*(d*15.);
-    // dist = dist*step(.00005,d);
-    // dist = d;
-
-    // float dist = (distance(vec2(t.x,t.y),uv)*1.);
-    // float x = sin(time*2.)*.02+.02;
-    // float y = .01;
-    // dist = 1.-(smoothstep(x-y,x,dist)-smoothstep(x,x+y,dist));
-    
-    // dist = step(.002 + sin(time*20.)*.002,d);
-    
-    cc = 1.-vec4(dist, dist, dist, 1.0);
-    // cc = mix(c1,c2,dist/2.);
+    float d2 = distance(vec2(t.b,t.a),uv);
+    float dist = sin(d*100.+time);
+    float dist2 = sin(d2*100.-time);
 
 
 
-    cc *=vec4(t.r,1.-t.r,t.g,1.);
-    // cc = t;
-    cc.a = 1.;
+    // cc *=vec4(t.r,1.-t.r,t.g,1.);
+    cc = vec4(dist,dist,dist2,dist2);
+    // cc.a = 1.;
 }`;
 //fragment shader for init
 src_init = `#version 300 es
@@ -55,8 +45,11 @@ uniform sampler2D glyph;
 void main() {
     vec2 uv = u * .5 + .5;
     cc=vec4(999);
-    float t = step(.1,texture(glyph,uv).r);
-    if(t>0.)cc=vec4(uv,0,1);
+    vec4 t = texture(glyph,uv);
+    float r = step(.1,t.r);
+    float g = step(.1,t.g);
+    if(r>0.)cc=vec4(uv,0,0.);
+    if(g>0.)cc=vec4(cc.rg,uv);
 }`;
 
 //fragment shader for ping
@@ -71,21 +64,23 @@ uniform float frame;
 
 void main() {
     vec2 uv = gl_FragCoord.xy/res;
-	// cc+=frame/8.;
-   // vec2 uv = u * .5 + .5;
    vec2 onePixel = vec2(.5) / pow(2.,frame);
    vec4 t = vec4(0.);
-   float bestDist = 99999.;
+   float bestDistR = 99999.;
+   float bestDistG = 99999.;
    for (float i = -1.; i <=1.; i++) {
        for (float j = -1.; j <=1.; j++) {
-		 // float j = 0.;
            vec2 uv_s = fract(uv+vec2(i,j)*onePixel);
            vec4 t2 = texelFetch(pong,ivec2(uv_s*res),0);
            float new_dist = length(t2.xy-uv);
-		 // if(i==1.){cc=vec4(new_dist);return;}
-           if (new_dist<bestDist) {
-               t = t2;
-               bestDist = new_dist;
+           if (new_dist<bestDistR) {
+               t.rg = t2.rg;
+               bestDistR = new_dist;
+           }
+           new_dist = length(t2.ba-uv);
+           if (new_dist<bestDistG) {
+                t.ba = t2.ba;
+                bestDistG = new_dist;
            }
        }
    }
@@ -182,8 +177,9 @@ function main() {
     // glyphImage.src = "chunky_spiral.png";
     // glyphImage.src = "squares3.png";
     // glyphImage.src = "hollow.png";
-    glyphImage.src = "gridlock.png";
-    // glyphImage.src = "spiral_g  raph.png";
+    // glyphImage.src = "gridlock.png";
+    glyphImage.src = "multiglyph.png";
+    // glyphImage.src = "spiral_graph.png";
     // glyphImage.src="simulacra.png";
     // glyphImage.src="sand.png";
     // glyphImage.src="lightbright.png";
