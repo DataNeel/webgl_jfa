@@ -23,7 +23,7 @@ void main() {
     vec4 t = texture(jfa,uv);
 
     float d = distance(vec2(t.x,t.y),uv);
-    float dist = sin(d*650.-time*5.)+1.*(d*30.);
+    float dist = sin(d*650.-time*2.)+1.*(d*15.);
     // dist = dist*step(.00005,d);
     // dist = d;
 
@@ -182,13 +182,14 @@ function main() {
     // glyphImage.src = "chunky_spiral.png";
     // glyphImage.src = "squares3.png";
     // glyphImage.src = "hollow.png";
-    // glyphImage.src = "spiral_graph.png";
+    glyphImage.src = "gridlock.png";
+    // glyphImage.src = "spiral_g  raph.png";
     // glyphImage.src="simulacra.png";
     // glyphImage.src="sand.png";
     // glyphImage.src="lightbright.png";
     // glyphImage.src="zebra.png";
-    glyphImage.src="knots.png";
-    glyphImage.src="glyph2.png";
+    // glyphImage.src="knots.png";
+    // glyphImage.src="glyph2.png";
     // glyphImage.src = "squarecircle.png";
     // glyphImage.src = "randlines2.png";
     glyphImage.addEventListener('load', function () {
