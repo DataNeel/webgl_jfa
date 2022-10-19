@@ -98,18 +98,18 @@ void main() {
     float n1 = snoise(vec3(uv*100.,time*.2));
     float d = distance(vec2(t.x,t.y),uv);
     // float d2 = distance(vec2(t.b,t.a),uv);
-    float d2 = distance(vec2(t.x,t.y),uv);
-    float dist = (sin(d*100.+time*1.)+1.)*.75 * (step(.02,d));
-    float dist2 = (sin(d2*100.-time*1.)+1.)*.65 * step(.02,d2);
-    dist = smoothstep(.45,.55,dist);
-    dist2 = smoothstep(.45,.55,dist2);
-    dist += step(.8,snoise(vec3(uv*100.,time*.5)))*.4;
-    dist2 += step(.8,snoise(vec3(uv*100.,-time*.5)))*.4;
+    float d2 = d;
+    float dist = (sin(d*300.+time*.5)+1.)*.75 * (step(.02,d));
+    float dist2 = (sin(d2*100.-time*.5)+1.)*.65 * step(.02,d2);
+    dist = smoothstep(.49,.61,dist);
+    dist2 = smoothstep(.35,.55,dist2);
+    dist += step(.8,snoise(vec3(uv*50.,time*.5)))*.4;
+    dist2 += step(.8,snoise(vec3(uv*50.,-time*.5)))*.4;
 
-    vec4 c1 = vec4(5, 25, 35,255.)/255.;
-    vec4 c2 = vec4(0, 100, 148,255.)/255.;
-    vec4 c3 = vec4(240, 211, 247,255.)/255.;
-    vec4 c4 = vec4(231, 90, 124,255.)/255.;
+    vec4 c1 = vec4(7, 2, 13,255.)/255.;
+    vec4 c2 = vec4(99, 173, 242,255.)/255.;
+    vec4 c3 = vec4(154, 3, 30,255.)/255.;
+    vec4 c4 = vec4(255, 255, 255,255.)/255.;
     
     vec4 ca = mix(c1,c2,dist);
     vec4 cb = mix(c3,c4,dist);
@@ -176,7 +176,7 @@ void main() {
    // cc = ;
 ////cc.a=1.;
 }`;
-let steps_override =15.;
+let steps_override =6.;
 
 //fragment shader for pong
 src_pong = `#version 300 es
@@ -265,9 +265,9 @@ function main() {
     // glyphImage.src = "squares3.png";
     // glyphImage.src = "hollow.png";
     // glyphImage.src = "gridlock.png";
-    glyphImage.src = "multiglyph.png";
+    // glyphImage.src = "multiglyph.png";
     // glyphImage.src = "spiral_graph.png";
-    // glyphImage.src="simulacra.png";
+    glyphImage.src="simulacra.png";
     // glyphImage.src="sand.png";
     // glyphImage.src="lightbright.png";
     // glyphImage.src="zebra.png";
@@ -275,6 +275,7 @@ function main() {
     // glyphImage.src="glyph2.png";
     // glyphImage.src = "squarecircle.png";
     // glyphImage.src = "randlines2.png";
+    glyphImage.src = "simulacrum.png";
     glyphImage.addEventListener('load', function () {
     gl.activeTexture(gl.TEXTURE0+0);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, glyphImage);
