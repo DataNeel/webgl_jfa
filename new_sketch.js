@@ -98,17 +98,19 @@ void main() {
     float n1 = snoise(vec3(vec2(t.rg)*10.,time*.1))+1.;
     float d = distance(vec2(t.x,t.y),uv);
     float dx = distance(vec2(t.b,t.a),uv);
-    float d2 = mix(dx,d,smoothstep(.3,.7,.5*(sin(time*.3)+1.)));
-    float d1 = mix(dx,d,smoothstep(.3,.7,.5*(sin((time+1000.)*.3)+1.)));
-    // d = d2;
+    // float d2 = mix(dx,d,smoothstep(.3,.7,.5*(sin(time*.3)+1.)));
+    // float d1 = mix(dx,d,smoothstep(.3,.7,.5*(sin((time+0.)*.3)+1.)));
+    float d1 = dx;
+    float d2 = d1;
+    float dc = 1./(distance(uv,vec2(.5))+.001)*1.20;
 
     
     // float d2 = d;
     // d *= step(.01,d);
-    float dist = (sin(d1*10.+time*.4 + 4.*n1)+.9)*6. ;
-    float dist2 = (sin(d2*50.-time*.6 - 1.5*n1)+1.9)*.5 ;
-    dist *= (step(d1,.0008));
-    dist2 *= step(d2,.005);
+    float dist = (sin(d1*100.*dc+time*2.4 )+1.)*.5 ;
+    float dist2 = (sin(d2*180.*dc-time*5.6)+1.)*.5 ;
+    // dist *= (step(d1,.0008));
+    // dist2 *= step(d2,.005);
 
     dist = smoothstep(.49,.51,dist);
     dist2 = smoothstep(.49,.51,dist2);
