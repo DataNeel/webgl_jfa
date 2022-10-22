@@ -95,21 +95,34 @@ void main() {
     vec2 uv = gl_FragCoord.xy/res;
     vec4 t = texture(jfa,uv);
 
-    float n1 = snoise(vec3(uv*100.,time*.2));
+    float n1 = snoise(vec3(vec2(t.rg)*10.,time*.1))+1.;
     float d = distance(vec2(t.x,t.y),uv);
-    // float d2 = distance(vec2(t.b,t.a),uv);
-    float d2 = d;
-    float dist = (sin(d*300.+time*.5)+1.)*.75 * (step(.02,d));
-    float dist2 = (sin(d2*100.-time*.5)+1.)*.65 * step(.02,d2);
-    dist = smoothstep(.49,.61,dist);
-    dist2 = smoothstep(.35,.55,dist2);
-    dist += step(.8,snoise(vec3(uv*50.,time*.5)))*.4;
-    dist2 += step(.8,snoise(vec3(uv*50.,-time*.5)))*.4;
+    float dx = distance(vec2(t.b,t.a),uv);
+    float d2 = mix(dx,d,smoothstep(.3,.7,.5*(sin(time*.3)+1.)));
+    float d1 = mix(dx,d,smoothstep(.3,.7,.5*(sin((time+1000.)*.3)+1.)));
+    // d = d2;
 
-    vec4 c1 = vec4(7, 2, 13,255.)/255.;
-    vec4 c2 = vec4(99, 173, 242,255.)/255.;
-    vec4 c3 = vec4(154, 3, 30,255.)/255.;
-    vec4 c4 = vec4(255, 255, 255,255.)/255.;
+    
+    // float d2 = d;
+    // d *= step(.01,d);
+    float dist = (sin(d1*10.+time*.4 + 4.*n1)+.9)*6. ;
+    float dist2 = (sin(d2*50.-time*.6 - 1.5*n1)+1.9)*.5 ;
+    dist *= (step(d1,.0008));
+    dist2 *= step(d2,.005);
+
+    dist = smoothstep(.49,.51,dist);
+    dist2 = smoothstep(.49,.51,dist2);
+
+
+    dist += step(.8,snoise(vec3(uv*50.,time*.2)))*.4;
+    dist2 += step(.8,snoise(vec3(uv*50.,-time*.4)))*.4;
+    
+    
+
+    vec4 c1 = vec4(234, 253, 248,255.)/255.;
+    vec4 c2 = vec4(27, 27, 58,255.)/255.;
+    vec4 c3 = vec4(209, 177, 203,255.)/255.;
+    vec4 c4 = vec4(105, 54, 104,255.)/255.;
     
     vec4 ca = mix(c1,c2,dist);
     vec4 cb = mix(c3,c4,dist);
@@ -176,7 +189,7 @@ void main() {
    // cc = ;
 ////cc.a=1.;
 }`;
-let steps_override =6.;
+let steps_override =15.;
 
 //fragment shader for pong
 src_pong = `#version 300 es
@@ -263,11 +276,15 @@ function main() {
     // glyphImage.src = "thing.png";
     // glyphImage.src = "chunky_spiral.png";
     // glyphImage.src = "squares3.png";
+    // glyphImage.src = "points.png";
+    // glyphImage.src = "hollow_multi.png";
+    // glyphImage.src = "flower.png";
+    glyphImage.src = "flower3.png";
     // glyphImage.src = "hollow.png";
     // glyphImage.src = "gridlock.png";
     // glyphImage.src = "multiglyph.png";
     // glyphImage.src = "spiral_graph.png";
-    glyphImage.src="simulacra.png";
+    // glyphImage.src="simulacra.png";
     // glyphImage.src="sand.png";
     // glyphImage.src="lightbright.png";
     // glyphImage.src="zebra.png";
@@ -275,7 +292,7 @@ function main() {
     // glyphImage.src="glyph2.png";
     // glyphImage.src = "squarecircle.png";
     // glyphImage.src = "randlines2.png";
-    glyphImage.src = "simulacrum.png";
+    // glyphImage.src = "simulacrum.png";
     glyphImage.addEventListener('load', function () {
     gl.activeTexture(gl.TEXTURE0+0);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, glyphImage);
@@ -444,19 +461,15 @@ function main() {
 
  
 
-   var then = 0;
+   
 //    while (!glyphLoaded) {
     
 //    }
     requestAnimationFrame(drawScene);
 
     function drawScene(time) {
-        // convert to seconds
-        time *= 0.001;
-        // Subtract the previous time from the current time
-        var deltaTime = time - then;
-        // Remember the current time for the next frame.
-        then = time;
+
+        time = (performance.now())* .001;
 
     
         //main canvas stuffs
