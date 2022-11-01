@@ -95,13 +95,12 @@ void main() {
     vec2 uv = gl_FragCoord.xy/res;
     vec4 t = texture(jfa,uv);
     float d = distance(vec2(t.x,t.y),uv);
-    float pix = 120.;
-    float dc = 1./(distance(uv,vec2(.5))+.1)*.20;
-    float dpix = d*4.;
+    float pix = 300.;
+    float dpix = (d);
     vec2 uv2 = floor(uv*pix*dpix)/(pix*dpix);
     
 
-    float n1 = snoise(vec3(vec2(t.rg)*10.,time*.1))+1.;
+    // float n1 = snoise(vec3(vec2(t.rg)*10.,time*.1))+1.;
     
     float dx = distance(vec2(t.b,t.a),uv2);
     // float d2 = mix(dx,d,smoothstep(.3,.7,.5*(sin(time*.3)+1.)));
@@ -113,24 +112,24 @@ void main() {
     
     // float d2 = d;
     // d *= step(.01,d);
-    float dist = (sin(d1*100.+time*1.4 )+1.)*.025 *(1./d1);
+    float dist = (sin(d1*10.+time*1.4 )+1.)*.025 *(1./d1);
     float dist2 = (sin(d2*10.-time*.6)+1.)*.025 * (1./d2);
-    dist *= (step(.000008,d1));
-    dist2 *= step(.00008,d2);
+    // dist *= (step(.000008,d1));
+    // dist2 *= step(.00008,d2);
 
-    dist = smoothstep(.49,.51,dist);
-    dist2 = smoothstep(.49,.51,dist2);
+    dist = smoothstep(.1,.9,dist);
+    dist2 = smoothstep(.1,.9,dist2);
 
 
-    dist += step(.8,snoise(vec3(uv*50.,time*.2)))*.4;
-    dist2 += step(.8,snoise(vec3(uv*50.,-time*.4)))*.4;
+    dist += step(.4,snoise(vec3(uv2*50.,time*.2)))*.5;
+    dist2 += step(.3,snoise(vec3(uv2*50.,-time*.4)))*.5;
     
     
 
-    vec4 c1 = vec4(234, 253, 248,255.)/255.;
-    vec4 c2 = vec4(27, 27, 58,255.)/255.;
-    vec4 c3 = vec4(209, 177, 203,255.)/255.;
-    vec4 c4 = vec4(105, 54, 104,255.)/255.;
+    vec4 c1 = vec4(11,19,43,255.)/255.;
+    vec4 c2 = vec4(208,204,208,255.)/255.;
+    vec4 c3 = vec4(160,108,213,255.)/255.;
+    vec4 c4 = vec4(91,192,190,255.)/255.;
     
     vec4 ca = mix(c1,c2,dist);
     vec4 cb = mix(c3,c4,dist);
@@ -197,7 +196,7 @@ void main() {
    // cc = ;
 ////cc.a=1.;
 }`;
-let steps_override =15.;
+let steps_override =20.;
 
 //fragment shader for pong
 src_pong = `#version 300 es
@@ -277,7 +276,7 @@ function main() {
 
     //load real texture
     var glyphImage = new Image();
-    glyphImage.src = "glyph.png";
+    // glyphImage.src = "glyph.png";
     // glyphImage.src = "thinglyph.png";
     // glyphImage.src = "debris2.png"
     // glyphImage.src = "struct.png";
@@ -287,8 +286,9 @@ function main() {
     // glyphImage.src = "points.png";
     // glyphImage.src = "hollow_multi.png";
     // glyphImage.src = "flower.png";
-    // glyphImage.src = "flower2.png";
+    glyphImage.src = "flower2.png";
     // glyphImage.src = "flower3.png";
+    // glyphImage.src = "flower4.png";
     // glyphImage.src = "hollow.png";
     // glyphImage.src = "gridlock.png";
     // glyphImage.src = "multiglyph.png";
