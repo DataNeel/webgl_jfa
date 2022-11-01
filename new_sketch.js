@@ -94,23 +94,29 @@ float snoise(vec3 v){
 void main() {
     vec2 uv = gl_FragCoord.xy/res;
     vec4 t = texture(jfa,uv);
+    float d = distance(vec2(t.x,t.y),uv);
+    float pix = 120.;
+    float dc = 1./(distance(uv,vec2(.5))+.1)*.20;
+    float dpix = d*4.;
+    vec2 uv2 = floor(uv*pix*dpix)/(pix*dpix);
+    
 
     float n1 = snoise(vec3(vec2(t.rg)*10.,time*.1))+1.;
-    float d = distance(vec2(t.x,t.y),uv);
-    float dx = distance(vec2(t.b,t.a),uv);
+    
+    float dx = distance(vec2(t.b,t.a),uv2);
     // float d2 = mix(dx,d,smoothstep(.3,.7,.5*(sin(time*.3)+1.)));
     // float d1 = mix(dx,d,smoothstep(.3,.7,.5*(sin((time+0.)*.3)+1.)));
     float d1 = dx;
-    float d2 = d1;
-    float dc = 1./(distance(uv,vec2(.5))+.001)*1.20;
+    float d2 = dx;
+    
 
     
     // float d2 = d;
     // d *= step(.01,d);
-    float dist = (sin(d1*100.*dc+time*2.4 )+1.)*.5 ;
-    float dist2 = (sin(d2*180.*dc-time*5.6)+1.)*.5 ;
-    // dist *= (step(d1,.0008));
-    // dist2 *= step(d2,.005);
+    float dist = (sin(d1*100.+time*1.4 )+1.)*.025 *(1./d1);
+    float dist2 = (sin(d2*10.-time*.6)+1.)*.025 * (1./d2);
+    dist *= (step(.000008,d1));
+    dist2 *= step(.00008,d2);
 
     dist = smoothstep(.49,.51,dist);
     dist2 = smoothstep(.49,.51,dist2);
@@ -271,7 +277,7 @@ function main() {
 
     //load real texture
     var glyphImage = new Image();
-    // glyphImage.src = "glyph.png";
+    glyphImage.src = "glyph.png";
     // glyphImage.src = "thinglyph.png";
     // glyphImage.src = "debris2.png"
     // glyphImage.src = "struct.png";
@@ -281,12 +287,13 @@ function main() {
     // glyphImage.src = "points.png";
     // glyphImage.src = "hollow_multi.png";
     // glyphImage.src = "flower.png";
-    glyphImage.src = "flower3.png";
+    // glyphImage.src = "flower2.png";
+    // glyphImage.src = "flower3.png";
     // glyphImage.src = "hollow.png";
     // glyphImage.src = "gridlock.png";
     // glyphImage.src = "multiglyph.png";
     // glyphImage.src = "spiral_graph.png";
-    // glyphImage.src="simulacra.png";
+    // glyphImage.src="simulacra.png   ";
     // glyphImage.src="sand.png";
     // glyphImage.src="lightbright.png";
     // glyphImage.src="zebra.png";
