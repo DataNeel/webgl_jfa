@@ -98,14 +98,14 @@ void main() {
     float d2 = distance(vec2(t.b,t.a),uv);
     // d2 = d1;
     float d = .005;
-    float scale = .5;
-    float n1 = d + snoise(vec3(uv*10.,time*.5))*d*scale;
+    float scale = .25;
+    float n1 = d + snoise(vec3(uv*5.,time*.5))*d*scale;
     float n2 = d + snoise(vec3(uv*10.,-time*.5))*d*scale;
     // n1 = .005;
     
 
-    float space = min(1.*pow(d1*d2,.9),.05);
-    float width = space*.25;
+    float space = 7.*max(d1*d2,.002);
+    float width = space*.2;
     float dist = step(mod(d1,space),n1+width)-step(mod(d1,space),n1-width);
     float dist2 = step(mod(d2,space),n2+width)-step(mod(d2,space),n2-width);
     
@@ -115,10 +115,10 @@ void main() {
 
 
 
-    vec4 c1 = vec4(6,123,194,255.)/255.;
-    vec4 c2 = vec4(132,188,218,255.)/255.;
-    vec4 c3 = vec4(236,195,11,255.)/255.;
-    vec4 c4 = vec4(243,119,72,255.)/255.;
+    vec4 c1 = vec4(5,60,94,255.)/255.;
+    vec4 c2 = vec4(71,137,120,255.)/255.;
+    vec4 c3 = vec4(191,219,247,255.)/255.;
+    vec4 c4 = vec4(163,22,33,255.)/255.;
     
     vec4 ca = mix(c1,c2,dist);
     vec4 cb = mix(c3,c4,dist);
@@ -263,7 +263,7 @@ function main() {
 
     //load real texture
     var glyphImage = new Image();
-    glyphImage.src = "glyph.png";
+    // glyphImage.src = "glyph.png";
     // glyphImage.src = "thinglyph.png";
     // glyphImage.src = "debris2.png"
     // glyphImage.src = "struct.png";
@@ -271,11 +271,11 @@ function main() {
     // glyphImage.src = "chunky_spiral.png";
     // glyphImage.src = "squares3.png";
     // glyphImage.src = "points.png";
-    // glyphImage.src = "hollow_multi.png";
+    glyphImage.src = "hollow_multi.png";
     // glyphImage.src = "flower.png";
     // glyphImage.src = "flower2.png";
     // glyphImage.src = "flower3.png";
-    glyphImage.src = "flower6.png";
+    // glyphImage.src = "flower6.png";
     // glyphImage.src = "hollow.png";
     // glyphImage.src = "gridlock.png";
     // glyphImage.src = "multiglyph.png";
@@ -287,7 +287,7 @@ function main() {
     // glyphImage.src="knots.png";
     // glyphImage.src="glyph2.png";
     // glyphImage.src = "squarecircle.png";
-    glyphImage.src = "squarecircle2.png";
+    // glyphImage.src = "squarecircle2.png";
     // glyphImage.src = "randlines2.png";
     // glyphImage.src = "simulacrum.png";
     glyphImage.addEventListener('load', function () {
