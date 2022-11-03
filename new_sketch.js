@@ -96,7 +96,7 @@ void main() {
     vec4 t = texture(jfa,uv);
     float d1 = distance(vec2(t.x,t.y),uv);
     float d2 = distance(vec2(t.b,t.a),uv);
-    d2 = d1;
+    // d2 = d1;
     float d = .005;
     float scale = .5;
     float n1 = d + snoise(vec3(uv*10.,time*.5))*d*scale;
@@ -104,12 +104,13 @@ void main() {
     // n1 = .005;
     
 
-    float space = .015;
-    float width = .003;
+    float space = min(1.*pow(d1*d2,.9),.05);
+    float width = space*.25;
     float dist = step(mod(d1,space),n1+width)-step(mod(d1,space),n1-width);
     float dist2 = step(mod(d2,space),n2+width)-step(mod(d2,space),n2-width);
-    // float dist = (sin(d1*500.+time*10.)+1.)*.5;
-    // float dist2 = (sin(d2*80.+time*2.)+1.)*.5;
+    
+    // float dist = smoothstep(n1,n1+width*2.,mod(d1,space))-smoothstep(n1,n1-width*2.,mod(d1,space));
+    // float dist2 = smoothstep(n2,n2+width*2.,mod(d2,space))-smoothstep(n2,n2-width*2.,mod(d2,space));
     
 
 
@@ -286,6 +287,7 @@ function main() {
     // glyphImage.src="knots.png";
     // glyphImage.src="glyph2.png";
     // glyphImage.src = "squarecircle.png";
+    glyphImage.src = "squarecircle2.png";
     // glyphImage.src = "randlines2.png";
     // glyphImage.src = "simulacrum.png";
     glyphImage.addEventListener('load', function () {
