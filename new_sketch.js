@@ -105,7 +105,7 @@ void main() {
     
 
     float space = 14.*max(d1*d2,.002);
-    float width = space*.2;
+    float width = space*.15;
     float dist = step(mod(d1,space),n1+width)-step(mod(d1,space),n1-width);
     float dist2 = step(mod(d2,space),n2+width)-step(mod(d2,space),n2-width*1.5);
     
@@ -115,10 +115,10 @@ void main() {
 
 
 
-    vec4 c1 = vec4(5,60,94,255.)/255.;
-    vec4 c2 = vec4(71,137,120,255.)/255.;
-    vec4 c3 = vec4(191,219,247,255.)/255.;
-    vec4 c4 = vec4(163,22,33,255.)/255.;
+    vec4 c1 = vec4(245,245,245  ,255.)/255.;
+    vec4 c2 = vec4(129,173,200,255.)/255.;
+    vec4 c3 = vec4(2,2,11,255.)/255.;
+    vec4 c4 = vec4(239,86,31,255.)/255.;
     
     vec4 ca = mix(c1,c2,dist);
     vec4 cb = mix(c3,c4,dist);
@@ -240,6 +240,7 @@ function main() {
     dpr = devicePixelRatio;
     let minRes = Math.min(w, h);
     h = w = minRes * 1.;
+    // h = w / 16 * 9;
     resx = C.width = w * dpr | 0;
     resy = C.height = h * dpr | 0;
     // resx, resy = 1024;
@@ -277,6 +278,8 @@ function main() {
     glyphImage.src = "hollow4.png";
     glyphImage.src = "hollow5.png";
     glyphImage.src = "hollow6.png";
+    glyphImage.src = "hollow7.png";
+    // glyphImage.src = "hollow8.png";
     
     // glyphImage.src = "flower.png";
     // glyphImage.src = "flower2.png";
