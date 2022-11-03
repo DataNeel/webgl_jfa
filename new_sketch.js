@@ -99,15 +99,15 @@ void main() {
     // d2 = d1;
     float d = .005;
     float scale = .25;
-    float n1 = d + snoise(vec3(uv*5.,time*.5))*d*scale;
-    float n2 = d + snoise(vec3(uv*10.,-time*.5))*d*scale;
+    float n1 = d + snoise(vec3(uv*50.,time*.5))*d*scale;
+    float n2 = d + snoise(vec3(uv*30.,-time*.5))*d*scale;
     // n1 = .005;
     
 
-    float space = 7.*max(d1*d2,.002);
+    float space = 14.*max(d1*d2,.002);
     float width = space*.2;
     float dist = step(mod(d1,space),n1+width)-step(mod(d1,space),n1-width);
-    float dist2 = step(mod(d2,space),n2+width)-step(mod(d2,space),n2-width);
+    float dist2 = step(mod(d2,space),n2+width)-step(mod(d2,space),n2-width*1.5);
     
     // float dist = smoothstep(n1,n1+width*2.,mod(d1,space))-smoothstep(n1,n1-width*2.,mod(d1,space));
     // float dist2 = smoothstep(n2,n2+width*2.,mod(d2,space))-smoothstep(n2,n2-width*2.,mod(d2,space));
@@ -271,7 +271,13 @@ function main() {
     // glyphImage.src = "chunky_spiral.png";
     // glyphImage.src = "squares3.png";
     // glyphImage.src = "points.png";
-    glyphImage.src = "hollow_multi.png";
+    // glyphImage.src = "hollow_multi.png";
+    // glyphImage.src = "hollow2.png";
+    // glyphImage.src = "hollow3.png";
+    glyphImage.src = "hollow4.png";
+    glyphImage.src = "hollow5.png";
+    glyphImage.src = "hollow6.png";
+    
     // glyphImage.src = "flower.png";
     // glyphImage.src = "flower2.png";
     // glyphImage.src = "flower3.png";
