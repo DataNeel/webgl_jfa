@@ -94,51 +94,32 @@ float snoise(vec3 v){
 void main() {
     vec2 uv = gl_FragCoord.xy/res;
     vec4 t = texture(jfa,uv);
-    float d = distance(vec2(t.x,t.y),uv);
-    float pix = 300.;
-    float dpix = (d);
-    vec2 uv2 = floor(uv*pix*dpix)/(pix*dpix);
-    
-
-    // float n1 = snoise(vec3(vec2(t.rg)*10.,time*.1))+1.;
-    
-    float dx = distance(vec2(t.b,t.a),uv2);
-    // float d2 = mix(dx,d,smoothstep(.3,.7,.5*(sin(time*.3)+1.)));
-    // float d1 = mix(dx,d,smoothstep(.3,.7,.5*(sin((time+0.)*.3)+1.)));
-    float d1 = dx;
-    float d2 = dx;
+    float d1 = distance(vec2(t.x,t.y),uv);
+    float d2 = distance(vec2(t.b,t.a),uv);
+    d2 = d1;
+    // float n1 = snoise(vec3(uv,time*.1));
     
 
     
-    // float d2 = d;
-    // d *= step(.01,d);
-    float dist = (sin(d1*10.+time*1.4 )+1.)*.025 *(1./d1);
-    float dist2 = (sin(d2*10.-time*.6)+1.)*.025 * (1./d2);
-    // dist *= (step(.000008,d1));
-    // dist2 *= step(.00008,d2);
-
-    dist = smoothstep(.1,.9,dist);
-    dist2 = smoothstep(.1,.9,dist2);
-
-
-    dist += step(.4,snoise(vec3(uv2*50.,time*.2)))*.5;
-    dist2 += step(.3,snoise(vec3(uv2*50.,-time*.4)))*.5;
-    
+    // float dist = step(mod(d1,.05),.015)-step(mod(d1,.05),.005);
+    // float dist2 = step(mod(d2,.05),.015)-step(mod(d2,.05),.005);
+    float dist = (sin(d1*500.+time*10.)+1.)*.5;
+    float dist2 = (sin(d2*80.+time*2.)+1.)*.5;
     
 
-    vec4 c1 = vec4(11,19,43,255.)/255.;
-    vec4 c2 = vec4(208,204,208,255.)/255.;
-    vec4 c3 = vec4(160,108,213,255.)/255.;
-    vec4 c4 = vec4(91,192,190,255.)/255.;
+
+
+    vec4 c1 = vec4(6,123,194,255.)/255.;
+    vec4 c2 = vec4(132,188,218,255.)/255.;
+    vec4 c3 = vec4(236,195,11,255.)/255.;
+    vec4 c4 = vec4(243,119,72,255.)/255.;
     
     vec4 ca = mix(c1,c2,dist);
     vec4 cb = mix(c3,c4,dist);
     cc = mix(ca,cb,dist2);
 
 
-
-    // cc = vec4(dist,dist,dist2,1.);
-    // cc.a = 1.;
+    // cc = vec4(t.b,t.a,1.,1.);
 }`;
 //fragment shader for init
 src_init = `#version 300 es
@@ -151,12 +132,12 @@ uniform sampler2D glyph;
 
 void main() {
     vec2 uv = u * .5 + .5;
-    cc=vec4(999);
+    cc=vec4(999.);
     vec4 t = texture(glyph,uv);
     float r = step(.1,t.r);
     float g = step(.1,t.g);
-    if(r>0.)cc=vec4(uv,0,0.);
-    if(g>0.)cc=vec4(cc.rg,uv);
+    if(r>0.1)cc=vec4(uv,cc.ba);
+    if(g>0.1)cc=vec4(cc.rg,uv);
 }`;
 
 //fragment shader for ping
@@ -286,9 +267,9 @@ function main() {
     // glyphImage.src = "points.png";
     // glyphImage.src = "hollow_multi.png";
     // glyphImage.src = "flower.png";
-    glyphImage.src = "flower2.png";
+    // glyphImage.src = "flower2.png";
     // glyphImage.src = "flower3.png";
-    // glyphImage.src = "flower4.png";
+    glyphImage.src = "flower6.png";
     // glyphImage.src = "hollow.png";
     // glyphImage.src = "gridlock.png";
     // glyphImage.src = "multiglyph.png";
