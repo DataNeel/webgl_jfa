@@ -115,10 +115,10 @@ void main() {
 
 
 
-    vec4 c1 = vec4(245,245,245  ,255.)/255.;
-    vec4 c2 = vec4(129,173,200,255.)/255.;
-    vec4 c3 = vec4(2,2,11,255.)/255.;
-    vec4 c4 = vec4(239,86,31,255.)/255.;
+    vec4 c1 = vec4(41, 51, 92  ,255.)/255.;
+    vec4 c2 = vec4(219, 43, 57,255.)/255.;
+    vec4 c3 = vec4(243, 167, 18,255.)/255.;
+    vec4 c4 = vec4(173, 217, 244,255.)/255.;
     
     vec4 ca = mix(c1,c2,dist);
     vec4 cb = mix(c3,c4,dist);
@@ -264,7 +264,7 @@ function main() {
 
     //load real texture
     var glyphImage = new Image();
-    // glyphImage.src = "glyph.png";
+    glyphImage.src = "glyph.png";
     // glyphImage.src = "thinglyph.png";
     // glyphImage.src = "debris2.png"
     // glyphImage.src = "struct.png";
@@ -275,11 +275,11 @@ function main() {
     // glyphImage.src = "hollow_multi.png";
     // glyphImage.src = "hollow2.png";
     // glyphImage.src = "hollow3.png";
-    glyphImage.src = "hollow4.png";
-    glyphImage.src = "hollow5.png";
-    glyphImage.src = "hollow6.png";
-    glyphImage.src = "hollow7.png";
-    // glyphImage.src = "hollow8.png";
+    // glyphImage.src = "hollow4.png";
+    // glyphImage.src = "hollow5.png";
+    // glyphImage.src = "hollow6.png";
+    // glyphImage.src = "hollow7.png";
+    glyphImage.src = "hollow11.png";
     
     // glyphImage.src = "flower.png";
     // glyphImage.src = "flower2.png";
