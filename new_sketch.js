@@ -280,6 +280,7 @@ function main() {
     // glyphImage.src = "hollow6.png";
     // glyphImage.src = "hollow7.png";
     glyphImage.src = "hollow11.png";
+    glyphImage.src = "rock1.png";
     
     // glyphImage.src = "flower.png";
     // glyphImage.src = "flower2.png";
