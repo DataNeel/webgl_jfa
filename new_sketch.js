@@ -94,6 +94,7 @@ float snoise(vec3 v){
 void main() {
     vec2 uv = gl_FragCoord.xy/res;
     vec4 t = texture(jfa,uv);
+    // uv.x *= uv.y/uv.x;
     float d1 = distance(vec2(t.x,t.y),uv);
     float d2 = distance(vec2(t.b,t.a),uv);
     // d2 = d1;
@@ -117,10 +118,10 @@ void main() {
 
 
 
-    vec4 c1 = vec4(166, 117, 161  ,255.)/255.;
-    vec4 c2 = vec4(37, 40, 61,255.)/255.;
-    vec4 c3 = vec4(143, 57, 133,255.)/255.;
-    vec4 c4 = vec4(239, 217, 206,255.)/255.;
+    vec4 c1 = vec4(6, 123, 194,255.)/255.;
+    vec4 c2 = vec4(213, 96, 98,255.)/255.;
+    vec4 c3 = vec4(243, 119, 72,255.)/255.;
+    vec4 c4 = vec4(236, 195, 11,255.)/255.;
     
     vec4 ca = mix(c1,c2,dist);
     vec4 cb = mix(c3,c4,dist);
@@ -160,6 +161,7 @@ uniform float frame;
 
 void main() {
     vec2 uv = gl_FragCoord.xy/res;
+    
    vec2 onePixel = vec2(.5) / pow(2.,frame);
    vec4 t = vec4(0.);
    float bestDistR = 99999.;
@@ -241,7 +243,8 @@ function main() {
     h = innerHeight,
     dpr = devicePixelRatio;
     let minRes = Math.min(w, h);
-    h = w = minRes * 1.;
+    h = w =  minRes * .8;
+    // w = h * 16/9;
     // h = w / 16 * 9;
     resx = C.width = w * dpr | 0;
     resy = C.height = h * dpr | 0;
@@ -266,42 +269,7 @@ function main() {
 
     //load real texture
     var glyphImage = new Image();
-    glyphImage.src = "glyph.png";
-    // glyphImage.src = "thinglyph.png";
-    // glyphImage.src = "debris2.png"
-    // glyphImage.src = "struct.png";
-    // glyphImage.src = "thing.png";
-    // glyphImage.src = "chunky_spiral.png";
-    // glyphImage.src = "squares3.png";
-    // glyphImage.src = "points.png";
-    // glyphImage.src = "hollow_multi.png";
-    // glyphImage.src = "hollow2.png";
-    // glyphImage.src = "hollow3.png";
-    // glyphImage.src = "hollow4.png";
-    // glyphImage.src = "hollow5.png";
-    // glyphImage.src = "hollow6.png";
-    // glyphImage.src = "hollow7.png";
-    // glyphImage.src = "hollow1.png";
     glyphImage.src = "rock5.png";
-    
-    // glyphImage.src = "flower.png";
-    // glyphImage.src = "flower2.png";
-    // glyphImage.src = "flower3.png";
-    // glyphImage.src = "flower6.png";
-    // glyphImage.src = "hollow.png";
-    // glyphImage.src = "gridlock.png";
-    // glyphImage.src = "multiglyph.png";
-    // glyphImage.src = "spiral_graph.png";
-    // glyphImage.src="simulacra.png   ";
-    // glyphImage.src="sand.png";
-    // glyphImage.src="lightbright.png";
-    // glyphImage.src="zebra.png";
-    // glyphImage.src="knots.png";
-    // glyphImage.src="glyph2.png";
-    // glyphImage.src = "squarecircle.png";
-    // glyphImage.src = "squarecircle2.png";
-    // glyphImage.src = "randlines2.png";
-    // glyphImage.src = "simulacrum.png";
     glyphImage.addEventListener('load', function () {
     gl.activeTexture(gl.TEXTURE0+0);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, glyphImage);
