@@ -104,8 +104,10 @@ void main() {
     // n1 = .005;
     
 
-    float space = 14.*max(d1*d2,.002);
+    float space = 15.*max(d1*d2,.002);
     float width = space*.15;
+    // d1 *= .7;
+    // d2 *= .7;
     float dist = step(mod(d1,space),n1+width)-step(mod(d1,space),n1-width);
     float dist2 = step(mod(d2,space),n2+width)-step(mod(d2,space),n2-width*1.5);
     
@@ -115,10 +117,10 @@ void main() {
 
 
 
-    vec4 c1 = vec4(254, 239, 229  ,255.)/255.;
-    vec4 c2 = vec4(255, 207, 0,255.)/255.;
-    vec4 c3 = vec4(238, 97, 35,255.)/255.;
-    vec4 c4 = vec4(0, 145, 110,255.)/255.;
+    vec4 c1 = vec4(166, 117, 161  ,255.)/255.;
+    vec4 c2 = vec4(37, 40, 61,255.)/255.;
+    vec4 c3 = vec4(143, 57, 133,255.)/255.;
+    vec4 c4 = vec4(239, 217, 206,255.)/255.;
     
     vec4 ca = mix(c1,c2,dist);
     vec4 cb = mix(c3,c4,dist);
@@ -279,8 +281,8 @@ function main() {
     // glyphImage.src = "hollow5.png";
     // glyphImage.src = "hollow6.png";
     // glyphImage.src = "hollow7.png";
-    glyphImage.src = "hollow11.png";
-    glyphImage.src = "rock1.png";
+    // glyphImage.src = "hollow1.png";
+    glyphImage.src = "rock5.png";
     
     // glyphImage.src = "flower.png";
     // glyphImage.src = "flower2.png";
