@@ -243,7 +243,7 @@ function main() {
     h = innerHeight,
     dpr = devicePixelRatio;
     let minRes = Math.min(w, h);
-    h = w =  minRes * .8;
+    h = w =  minRes * 1.;
     // w = h * 16/9;
     // h = w / 16 * 9;
     resx = C.width = w * dpr | 0;
@@ -269,7 +269,7 @@ function main() {
 
     //load real texture
     var glyphImage = new Image();
-    glyphImage.src = "rock5.png";
+    glyphImage.src = "rocks6.png";
     glyphImage.addEventListener('load', function () {
     gl.activeTexture(gl.TEXTURE0+0);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, glyphImage);
