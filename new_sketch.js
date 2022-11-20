@@ -269,7 +269,7 @@ function main() {
 
     //load real texture
     var glyphImage = new Image();
-    glyphImage.src = "rocks6.png";
+    glyphImage.src = "rocks8.png";
     glyphImage.addEventListener('load', function () {
     gl.activeTexture(gl.TEXTURE0+0);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, glyphImage);
