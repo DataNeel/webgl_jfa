@@ -1,3 +1,22 @@
+function genTokenData(projectNum) {
+    let data = {};
+    let hash = "0x";
+    for (var i = 0; i < 64; i++) {
+      hash += Math.floor(Math.random() * 16).toString(16);
+    }
+    data.hash = hash;
+    data.tokenId = (projectNum * 1000000 + Math.floor(Math.random() * 1000)).toString();
+    return data;
+  }
+  let tokenData = genTokenData(109);
+
+  let xs=Uint32Array.from([0,0,0,0].map((_,i)=>parseInt(tokenData.hash.substr(i*8+2,8),16)));
+  const R=()=>{let s,t=xs[3];xs[3]=xs[2];xs[2]=xs[1];xs[1]=s=xs[0];t^=t<<11;t^=t>>>8;xs[0]=t^s^(s>>>19);return xs[0]/0x100000000};
+  const RN=(a,b)=>a+(b-a)*R();
+  const RI=(a,b)=>~~RN(a,b+1);
+  const RV=(v)=>v[RI(0,v.length-1)];
+  console.log(R());
+
 let firstframe = true;
 // vertex shader 
 src_v = `#version 300 es
@@ -8,6 +27,17 @@ void main() {
   u = a * 2. - 1.;
   gl_Position = vec4(u,0,1);
 }`;
+
+src_glyph = `#version 300 es
+precision highp float;
+
+in vec2 u;
+out vec4 cc;
+
+void main() {
+    cc=vec4(255.);
+}`;
+
 // fragment shader for main canvas
 src_f = `#version 300 es
 precision highp float;
@@ -128,8 +158,10 @@ void main() {
     cc = mix(ca,cb,dist2);
 
 
-    // cc = vec4(t.b,t.a,1.,1.);
+    cc = t;
 }`;
+
+
 //fragment shader for init
 src_init = `#version 300 es
 precision highp float;
@@ -228,6 +260,10 @@ createProgram = (vertex, fragment) => {
     return program;
 }
 
+rock = () => {
+    return [0.,1.,0.,0.,1.,1.];
+}
+
 function main() {
     //make canvas
     C = ({body} = D = document).createElement('canvas');
@@ -245,7 +281,6 @@ function main() {
     let minRes = Math.min(w, h);
     h = w =  minRes * 1.;
     // w = h * 16/9;
-    // h = w / 16 * 9;
     resx = C.width = w * dpr | 0;
     resy = C.height = h * dpr | 0;
     // resx, resy = 1024;
@@ -253,76 +288,48 @@ function main() {
     C.style.height = h + 'px';
 
     let positions = Float32Array.of(0, 1, 0, 0, 1, 1, 1, 0);
+    let glyphpositions =    Float32Array.of(0.1, .9, .1, .1, .9, .9);
 
-////load glyph into texture
-    // create texture variable for glyph
+    // create glyph framebuffer
+    const glyph = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, glyph);
+    const glyphAttachmentPoint = gl.COLOR_ATTACHMENT0;
 
-    var glyph_tex = gl.createTexture();
+    //create glyph texture
+    var glyphTex = gl.createTexture();
     gl.activeTexture(gl.TEXTURE0 + 0);
-    gl.bindTexture(gl.TEXTURE_2D, glyph_tex);
+    gl.bindTexture(gl.TEXTURE_2D, glyphTex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, resx, resy, 0, gl.RGBA, gl.FLOAT, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    //temporarily make texture black
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 100, 100, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([...Array(100**2)].map(_=>[0, 0, 0, 255]).flat()));
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, glyphAttachmentPoint, gl.TEXTURE_2D, glyphTex, 0);
 
-    //load real texture
-    var glyphImage = new Image();
-    glyphImage.src = "rocks6.png";
-    glyphImage.addEventListener('load', function () {
-    gl.activeTexture(gl.TEXTURE0+0);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, glyphImage);
-    gl.generateMipmap(gl.TEXTURE_2D);
+    //glyph program
+        //set up the ping program
+    glyphProgram = createProgram(src_v, src_glyph);
+    gl.useProgram(glyphProgram)
+    loc_a_glyph = gl.getAttribLocation(glyphProgram, 'a');
+    
+    //create a buffer and vao for glyph
+    positionBuffer_glyph = gl.createBuffer();
+    vao_glyph = gl.createVertexArray();
+    gl.bindVertexArray(vao_glyph);
+    gl.enableVertexAttribArray(loc_a_glyph);
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer_glyph);
+    gl.bufferData(gl.ARRAY_BUFFER, glyphpositions, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(loc_a_glyph, 2, gl.FLOAT, false, 0, 0);
 
-
-
-        //ping
-        gl.bindFramebuffer(gl.FRAMEBUFFER, ping);
-        
-        gl.viewport(0,0,resx,resy);
-        gl.clearColor(0, 0, 1, 1);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        gl.useProgram(initProgram);
-        gl.uniform1i(loc_glyph_init,0);
-        
-        gl.bindVertexArray(vao_ping);
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-        firstframe && console.log(resx);
-        let steps = Math.ceil(Math.log2(resx));
-        firstframe && console.log("steps: "+steps);
-         steps = Math.min(steps,steps_override);
-			let frame=0
-        for (let i = 0; i <steps; i++) {
-            //pong
-            gl.bindFramebuffer(gl.FRAMEBUFFER,pong);
+    //draw glyph
+    gl.bindFramebuffer(gl.FRAMEBUFFER,glyph);
             gl.viewport(0,0,resx,resy);
             gl.clearColor(0, 0, 1, 1);
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-            gl.useProgram(pongProgram);
-            gl.uniform1i(loc_ping_pong,1);
-            gl.bindVertexArray(vao_pong);
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            gl.useProgram(glyphProgram);
+            gl.bindVertexArray(vao_glyph);
+            gl.drawArrays(gl.LINE_STRIP, 0, glyphpositions.length/2.);
 
-            //ping
-            gl.bindFramebuffer(gl.FRAMEBUFFER,ping);
-            gl.viewport(0,0,resx,resy);
-            gl.clearColor(0, 0, 1, 1);
-            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-            gl.useProgram(pingProgram);
-            gl.uniform1i(loc_pong_ping,2);
-            let step = 2**(Math.log2(resx)-i-1);
-            firstframe && console.log(step);
-            gl.uniform1f(loc_step_ping,step);
-            gl.uniform1f(loc_frame_ping,frame);
-            gl.bindVertexArray(vao_ping);
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
-					frame++
-        }
-
-
-    });
+    
 
 //init program
     //set up the init program
@@ -334,6 +341,8 @@ function main() {
     loc_a_init = gl.getAttribLocation(initProgram, 'a');
     gl.useProgram(initProgram);
     gl.uniform1i(loc_glyph_init,0);
+
+
 
 //ping program
     //set up the ping program
@@ -368,7 +377,7 @@ function main() {
     gl.useProgram(pongProgram);
     gl.uniform1i(loc_ping_pong,1);
 
-    //create a buffer and vao for ping
+    //create a buffer and vao for pong
     positionBuffer_pong = gl.createBuffer();
     vao_pong = gl.createVertexArray();
     gl.bindVertexArray(vao_pong);
@@ -378,6 +387,8 @@ function main() {
     gl.vertexAttribPointer(loc_a_pong, 2, gl.FLOAT, false, 0, 0);
 
 
+
+    
 //main program
     //set up main canvas program
     mainProgram = createProgram(src_v, src_f);
@@ -387,7 +398,8 @@ function main() {
     loc_time_main = gl.getUniformLocation(mainProgram, 'time');
     loc_buffer_main = gl.getUniformLocation(mainProgram, 'jfa');
     loc_a_main = gl.getAttribLocation(mainProgram, 'a');
-    gl.uniform1i(loc_buffer_main,1);
+    // gl.uniform1i(loc_buffer_main,1);
+    gl.uniform1i(loc_buffer_main,0);
     
 
     //create a buffer and vao for main canvas
@@ -436,12 +448,62 @@ function main() {
     gl.framebufferTexture2D(gl.FRAMEBUFFER, pongAttachmentPoint, gl.TEXTURE_2D, pongTex, 0);
 
 
+        //glyph texture
+        gl.activeTexture(gl.TEXTURE0+0);
+        gl.generateMipmap(gl.TEXTURE_2D);
+
+
+
+        //ping
+        gl.bindFramebuffer(gl.FRAMEBUFFER, ping);
+        
+        gl.viewport(0,0,resx,resy);
+        gl.clearColor(0, 0, 1, 1);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.useProgram(initProgram);
+        gl.uniform1i(loc_glyph_init,0);
+        
+        gl.bindVertexArray(vao_ping);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        firstframe && console.log(resx);
+        let steps = Math.ceil(Math.log2(resx));
+        firstframe && console.log("steps: "+steps);
+         steps = Math.min(steps,steps_override);
+			let frame=0
+        for (let i = 0; i <steps; i++) {
+            //pong
+            gl.bindFramebuffer(gl.FRAMEBUFFER,pong);
+            gl.viewport(0,0,resx,resy);
+            gl.clearColor(0, 0, 1, 1);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            gl.useProgram(pongProgram);
+            gl.uniform1i(loc_ping_pong,1);
+            gl.bindVertexArray(vao_pong);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+            //ping
+            gl.bindFramebuffer(gl.FRAMEBUFFER,ping);
+            gl.viewport(0,0,resx,resy);
+            gl.clearColor(0, 0, 1, 1);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            gl.useProgram(pingProgram);
+            gl.uniform1i(loc_pong_ping,2);
+            let step = 2**(Math.log2(resx)-i-1);
+            firstframe && console.log(step);
+            gl.uniform1f(loc_step_ping,step);
+            gl.uniform1f(loc_frame_ping,frame);
+            gl.bindVertexArray(vao_ping);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+					frame++
+        }
+
+
+    
  
 
    
-//    while (!glyphLoaded) {
-    
-//    }
+
     requestAnimationFrame(drawScene);
 
     function drawScene(time) {
