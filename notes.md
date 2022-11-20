@@ -19,24 +19,27 @@ https://github.com/cacheflowe/haxademic/blob/master/src/com/haxademic/demo/draw/
 https://editor.p5js.org/yangshuzhan/sketches/SdzrD0Pqv
 
 
-1. clear out shader (intentionally)
-2. load texture into main shader
-3. load texture into frame buffer
-4. show frame buffer in main shader
-5. make framebuffer 32 bit
-6. create simple ping pong feedback script
-7. use ping pong for jfa
-8. display jfa results in main frame
-9. use jfa as distance map
 
-0.5
-new_sketch.js:319 1
-new_sketch.js:319 2
-new_sketch.js:319 4
-new_sketch.js:319 8
-new_sketch.js:319 16
-new_sketch.js:319 32
-new_sketch.js:319 64
-new_sketch.js:319 128
-new_sketch.js:319 256
-new_sketch.js:319 512
+
+* combining the code that makes the structure with the code that makes the texture (right now, this is actually the output of two pieces of code)
+    * try drawing in webgl
+        start with circle
+        then port code
+            remove p5 vector
+            use code to create arrays of points
+            draw lines instead of circle
+            figure out blend mode
+                https://www.html5gamedevs.com/topic/19785-blendmode-add-in-webgl/
+            draw both glyphs
+    * try drawing in js and passing to webgl
+    * try drawing in p5 and passing to webgl
+
+* adapting to a different aspect ratio (involves handling dimensions in the shader)
+
+* smoothing out some edges (they’re literally bumpy, and I have some hypotheses as to why)
+
+* Handling more variables (dimensions, width, density, etc)
+
+* adding more negative space (see above)
+
+* adding slight texture in the negative space
