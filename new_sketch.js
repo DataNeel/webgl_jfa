@@ -10,7 +10,7 @@ function genTokenData(projectNum) {
     return data;
   }
   let tokenData = genTokenData(109);
-  tokenData.hash = '0xd774b178d6f97f29e12438904b201b6063fc8455460264f5c970367207dd1f70';
+//   tokenData.hash = '0xd774b178d6f97f29e12438904b201b6063fc8455460264f5c970367207dd1f70';
   console.log(tokenData.hash);
   
 
@@ -533,7 +533,7 @@ function main() {
             var b1 = Boolean(Math.abs(nodes[i].i - nodes[j].i) == rules[0]) && Boolean(Math.abs(nodes[i].j - nodes[j].j) == rules[1] ) ;
             var b2 = Boolean(Math.abs(nodes[i].j - nodes[j].j) == rules[2]) && Boolean(Math.abs(nodes[i].i - nodes[j].i) == rules[3]) ;
             // let dropProb = lerp(maxDropProb,minDropProb,(lifeform)/(forms))
-            let dropProb = .9 - .1 * form;
+            let dropProb = .8 - .1 * form;
             if (Boolean(b1 || b2) && Math.abs(nodes[i].r-nodes[j].r) < dropProb) {
             nodes[i].neighbors.push(nodes[j]);
             nodes[j].neighbors.push(nodes[i]);
