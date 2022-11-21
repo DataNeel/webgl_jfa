@@ -609,6 +609,7 @@ function main() {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
     gl.framebufferTexture2D(gl.FRAMEBUFFER, glyphAttachmentPoint, gl.TEXTURE_2D, glyphTex, 0);
 
     //glyph program
@@ -646,6 +647,7 @@ function main() {
     gl.drawArrays(gl.LINE_LOOP, 0, glyphpositions.length/2.);
     gl.disable(gl.BLEND);
     
+
 
 //init program
     //set up the init program
