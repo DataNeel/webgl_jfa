@@ -163,7 +163,7 @@ void main() {
     cc = mix(ca,cb,dist2);
 
     //debug change
-    cc = t; 
+    // cc = t; 
 }`;
 
 
@@ -633,18 +633,18 @@ function main() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.useProgram(glyphProgram);
     gl.bindVertexArray(vao_glyph);
-    // gl.enable(gl.BLEND);
+    gl.enable(gl.BLEND);
     // gl.blendEquation(gl.FUNC_ADD);
-    // gl.blendFunc(gl.SRC_ALPHA, gl.DST   _ALPHA);
+    gl.blendFunc(gl.ONE, gl.ONE);
     let glyphpositions =    new Float32Array(paths[0].flat());
-    gl.uniform2f(loc_c_glyph,255,0);
-    gl.bufferData(gl.ARRAY_BUFFER, glyphpositions, gl.STATIC_DRAW);
-    gl.drawArrays(gl.LINE_LOOP, 0, glyphpositions.length/2.);
-    glyphpositions =    new Float32Array(paths[1].flat());
     gl.uniform2f(loc_c_glyph,0,255);
     gl.bufferData(gl.ARRAY_BUFFER, glyphpositions, gl.STATIC_DRAW);
     gl.drawArrays(gl.LINE_LOOP, 0, glyphpositions.length/2.);
-
+    glyphpositions =    new Float32Array(paths[1].flat());
+    gl.uniform2f(loc_c_glyph,255,0);
+    gl.bufferData(gl.ARRAY_BUFFER, glyphpositions, gl.STATIC_DRAW);
+    gl.drawArrays(gl.LINE_LOOP, 0, glyphpositions.length/2.);
+    gl.disable(gl.BLEND);
     
 
 //init program
@@ -715,8 +715,8 @@ function main() {
     loc_buffer_main = gl.getUniformLocation(mainProgram, 'jfa');
     loc_a_main = gl.getAttribLocation(mainProgram, 'a');
     //debug change
-    // gl.uniform1i(loc_buffer_main,1);
-    gl.uniform1i(loc_buffer_main,0);
+    gl.uniform1i(loc_buffer_main,1);
+    // gl.uniform1i(loc_buffer_main,0);
     
 
     //create a buffer and vao for main canvas
