@@ -163,7 +163,7 @@ void main() {
     cc = mix(ca,cb,dist2);
 
     //debug change
-    // cc = t; 
+    cc = t; 
 }`;
 
 
@@ -546,8 +546,7 @@ function main() {
 
             let ap = chaikinPath(c1.allPath,5,[.1,.9])
             let norms = calculateNormals(ap);
-            let r = lerp(5,0,0);
-            let vo = offset(ap,norms,.005);
+            let vo = offset(ap,norms,.005 - form*.0045);
             paths.push(vo);
     }
 
@@ -630,7 +629,7 @@ function main() {
     //draw glyph
     gl.bindFramebuffer(gl.FRAMEBUFFER,glyph);
     gl.viewport(0,0,resx,resy);
-    gl.clearColor(0, 0, 0, 0);
+    gl.clearColor(0, 0, 0, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.useProgram(glyphProgram);
     gl.bindVertexArray(vao_glyph);
@@ -716,9 +715,9 @@ function main() {
     loc_time_main = gl.getUniformLocation(mainProgram, 'time');
     loc_buffer_main = gl.getUniformLocation(mainProgram, 'jfa');
     loc_a_main = gl.getAttribLocation(mainProgram, 'a');
-    //debug change
-    gl.uniform1i(loc_buffer_main,1);
-    // gl.uniform1i(loc_buffer_main,0);
+    // //debug change
+    // gl.uniform1i(loc_buffer_main,1);
+    gl.uniform1i(loc_buffer_main,0);
     
 
     //create a buffer and vao for main canvas
