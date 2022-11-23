@@ -10,7 +10,7 @@ function genTokenData(projectNum) {
     return data;
   }
   let tokenData = genTokenData(109);
-//   tokenData.hash = '0xd774b178d6f97f29e12438904b201b6063fc8455460264f5c970367207dd1f70';
+  // tokenData.hash = '0xd774b178d6f97f29e12438904b201b6063fc8455460264f5c970367207dd1f70';
   console.log(tokenData.hash);
   
 
@@ -163,7 +163,7 @@ void main() {
     cc = mix(ca,cb,dist2);
 
     //debug change
-    cc = t; 
+    // cc = t; 
 }`;
 
 
@@ -544,9 +544,10 @@ function main() {
             c1.keepCrawling();
             // console.log(c1);
 
-            let ap = chaikinPath(c1.allPath,5,[.1,.9])
+            let ap = chaikinPath(c1.allPath,3,[.1,.9])
             let norms = calculateNormals(ap);
             let vo = offset(ap,norms,.005 - form*.0045);
+          
             paths.push(vo);
     }
 
@@ -716,8 +717,8 @@ function main() {
     loc_buffer_main = gl.getUniformLocation(mainProgram, 'jfa');
     loc_a_main = gl.getAttribLocation(mainProgram, 'a');
     // //debug change
-    // gl.uniform1i(loc_buffer_main,1);
-    gl.uniform1i(loc_buffer_main,0);
+    gl.uniform1i(loc_buffer_main,1);
+    // gl.uniform1i(loc_buffer_main,0);
     
 
     //create a buffer and vao for main canvas
