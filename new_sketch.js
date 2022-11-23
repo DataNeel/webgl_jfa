@@ -10,7 +10,7 @@ function genTokenData(projectNum) {
     return data;
   }
   let tokenData = genTokenData(109);
-  // tokenData.hash = '0xd774b178d6f97f29e12438904b201b6063fc8455460264f5c970367207dd1f70';
+  tokenData.hash = '0xa7392bb0b81ee655040550819af25ee5945687b772f618b28b888cb843d42a47';
   console.log(tokenData.hash);
   
 
@@ -153,10 +153,10 @@ void main() {
 
 
 
-    vec4 c1 = vec4(6, 123, 194,255.)/255.;
-    vec4 c2 = vec4(213, 96, 98,255.)/255.;
-    vec4 c3 = vec4(243, 119, 72,255.)/255.;
-    vec4 c4 = vec4(236, 195, 11,255.)/255.;
+    vec4 c1 = vec4(59, 0, 134,255.)/255.;
+    vec4 c2 = vec4(227, 208, 216,255.)/255.;
+    vec4 c3 = vec4(180, 62, 143,255.)/255.;
+    vec4 c4 = vec4(114, 225, 209,255.)/255.;
     
     vec4 ca = mix(c1,c2,dist);
     vec4 cb = mix(c3,c4,dist);
