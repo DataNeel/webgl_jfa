@@ -126,31 +126,35 @@ float snoise(vec3 v){
                                 dot(p2,x2), dot(p3,x3) ) );
 }
 
+float aastep(float threshold, float value) {
+  #ifdef GL_OES_standard_derivatives
+    float afwidth = length(vec2(dFdx(value), dFdy(value))) * .70710678118654757;
+    return smoothstep(threshold-afwidth, threshold+afwidth, value);
+  #else
+    return step(threshold, value);
+  #endif  
+}
+
 void main() {
     vec2 uv = gl_FragCoord.xy/res;
     vec4 t = texture(jfa,uv);
-    // uv.x *= uv.y/uv.x;
-    float d1 = distance(vec2(t.x,t.y),uv);
-    float d2 = distance(vec2(t.b,t.a),uv);
-    // d2 = d1;
+    // uv.x *= res.x/res.y;
+    float d1 = distance(vec2(t.x,t.y),uv)*2.;
+    float d2 = distance(vec2(t.b,t.a),uv)*2.;
+    //not sure, but makes a difference
     float d = .005;
-    float scale = .25;
+    //.1 to .3
+    float scale = .2;
     float n1 = d + snoise(vec3(uv*50.,time*.5))*d*scale;
     float n2 = d + snoise(vec3(uv*30.,-time*.5))*d*scale;
-    // n1 = .005;
     
-
-    float space = 15.*max(d1*d2,.002);
+    //12 to 22 for the first number
+    //0025 to 0005 for the last number
+    float space = 15.*max(d1*d2,.0006);
     float width = space*.15;
-    // d1 *= .7;
-    // d2 *= .7;
-    float dist = step(mod(d1,space),n1+width)-step(mod(d1,space),n1-width);
-    float dist2 = step(mod(d2,space),n2+width)-step(mod(d2,space),n2-width*1.5);
-    
-    // float dist = smoothstep(n1,n1+width*2.,mod(d1,space))-smoothstep(n1,n1-width*2.,mod(d1,space));
-    // float dist2 = smoothstep(n2,n2+width*2.,mod(d2,space))-smoothstep(n2,n2-width*2.,mod(d2,space));
-    
-
+ 
+    float dist = aastep(mod(d1,space),n1+width)-aastep(mod(d1,space),n1-width);
+    float dist2 = aastep(mod(d2,space),n2+width)-aastep(mod(d2,space),n2-width);
 
 
     vec4 c1 = vec4(59, 0, 134,255.)/255.;
@@ -163,7 +167,7 @@ void main() {
     cc = mix(ca,cb,dist2);
 
     //debug change
-    // cc = t; 
+    cc = t; 
 }`;
 
 
@@ -489,6 +493,7 @@ class crawler {
 
 function main() {
     let paths = [];
+    pebbles = [];
     for (form = 0; form < 2; form++) {
         xs=Uint32Array.from([0,0,0,0].map((_,i)=>parseInt(tokenData.hash.substr(i*8+2,8),16)));
         nodes = [];
@@ -519,6 +524,14 @@ function main() {
             }
             });
         
+        }
+        for (let i = 0; i < nodes.length*.25; i++) {
+          let pi = RI(0,nodes.length-1);
+          let p = nodes.splice(pi,1);
+          if (R()>.25) {
+            pebbles.push(p);
+          }
+          
         }
         
         for (let i = 0; i < nodes.length - 1; i++) {
@@ -635,7 +648,6 @@ function main() {
     gl.useProgram(glyphProgram);
     gl.bindVertexArray(vao_glyph);
     gl.enable(gl.BLEND);
-    // gl.blendEquation(gl.FUNC_ADD);
     gl.blendFunc(gl.ONE, gl.ONE);
     let glyphpositions =    new Float32Array(paths[0].flat());
     gl.uniform2f(loc_c_glyph,0,255);
@@ -645,6 +657,14 @@ function main() {
     gl.uniform2f(loc_c_glyph,255,0);
     gl.bufferData(gl.ARRAY_BUFFER, glyphpositions, gl.STATIC_DRAW);
     gl.drawArrays(gl.LINE_LOOP, 0, glyphpositions.length/2.);
+    gl.uniform2f(loc_c_glyph,255,255);
+    for (let i = 0; i < pebbles.length/2; i++) {
+      p = pebbles[i][0];
+      let pts = new Float32Array(notsquare(p.x,p.y,.02,RI(3,6)).flat());
+      gl.bufferData(gl.ARRAY_BUFFER, pts, gl.STATIC_DRAW);
+      gl.drawArrays(gl.LINE_LOOP, 0, pts.length/2.);
+
+    }
     gl.disable(gl.BLEND);
     
 
@@ -717,8 +737,8 @@ function main() {
     loc_buffer_main = gl.getUniformLocation(mainProgram, 'jfa');
     loc_a_main = gl.getAttribLocation(mainProgram, 'a');
     // //debug change
-    gl.uniform1i(loc_buffer_main,1);
-    // gl.uniform1i(loc_buffer_main,0);
+    // gl.uniform1i(loc_buffer_main,1);
+    gl.uniform1i(loc_buffer_main,0);
     
 
     //create a buffer and vao for main canvas
@@ -784,9 +804,7 @@ function main() {
         
         gl.bindVertexArray(vao_ping);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-        firstframe && console.log(resx);
         let steps = Math.ceil(Math.log2(resx));
-        firstframe && console.log("steps: "+steps);
          steps = Math.min(steps,steps_override);
 			let frame=0
         for (let i = 0; i <steps; i++) {
@@ -808,7 +826,6 @@ function main() {
             gl.useProgram(pingProgram);
             gl.uniform1i(loc_pong_ping,2);
             let step = 2**(Math.log2(resx)-i-1);
-            firstframe && console.log(step);
             gl.uniform1f(loc_step_ping,step);
             gl.uniform1f(loc_frame_ping,frame);
             gl.bindVertexArray(vao_ping);
