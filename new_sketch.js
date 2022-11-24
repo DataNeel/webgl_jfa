@@ -1,3 +1,9 @@
+//broken
+//0x788746d8311589f8ba527c9b7aeb15579ca4c06871272ee7cd7dda29311fd79d
+//0xa7ce56a0e65f548b7f98942a43d93b89cec00b6f4dd8da6b50fa2b1db818e5a5
+//0x887e5ec185b6b668a22926f00869eacd33bbad3f11e9b8136a0023aca3a12c5b
+
+
 const TWO_PI = 6.28318530717958647693;
 function genTokenData(projectNum) {
     let data = {};
@@ -10,7 +16,7 @@ function genTokenData(projectNum) {
     return data;
   }
   let tokenData = genTokenData(109);
-  tokenData.hash = '0xa7392bb0b81ee655040550819af25ee5945687b772f618b28b888cb843d42a47';
+  // tokenData.hash = '0x65a492f1e1afcc471b7f847cbacf3dfa1c97da2c0a774f35ae139af7cf20e0aa';
   console.log(tokenData.hash);
   
 
@@ -32,15 +38,27 @@ void main() {
   gl_Position = vec4(u,0,1);
 }`;
 
+glyph_v = `#version 300 es
+precision highp float;
+in vec3 a;
+out vec2 u;
+out float bl;
+void main() {
+  u = a.xy * 2. - 1.;
+  bl = a.z;
+  gl_Position = vec4(u,0,1);
+}`;
+
 src_glyph = `#version 300 es
 precision highp float;
 
 in vec2 u;
+in float bl;
 out vec4 cc;
 uniform vec2 c;
 
 void main() {
-    cc=vec4(c,0.,255.);
+    cc=vec4(c,bl,255.);
 }`;
 
 // fragment shader for main canvas
@@ -150,7 +168,7 @@ void main() {
     
     //12 to 22 for the first number
     //0025 to 0005 for the last number
-    float space = 15.*max(d1*d2,.0006);
+    float space = 15.*max(d1*d2,.0016);
     float width = space*.15;
  
     float dist = aastep(mod(d1,space),n1+width)-aastep(mod(d1,space),n1-width);
@@ -471,6 +489,31 @@ class crawler {
     }
     return VOs;
   }
+
+  function lengthOnPath(p) {
+    let l = [];
+    l.push(0);
+    for (let i = 1; i < p.length; i++) {
+      let d = Math.sqrt((p[i][0]-p[i-1][0])**2 + (p[i][1]-p[i-1][1])**2);
+      l.push(l[i-1]+d);
+    }
+    ml = l[l.length-1];
+    for (i in l) {
+      l[i] /=ml;
+    }
+    return l;
+  }
+
+  function flatWithLength(p) {
+    let l = lengthOnPath(p);
+    let newP = [];
+    for (i in p) {
+      newP.push(p[i][0]);
+      newP.push(p[i][1]);
+      newP.push(l[i]);
+    }
+    return newP;
+  }
   
   
 
@@ -494,12 +537,13 @@ class crawler {
 function main() {
     let paths = [];
     pebbles = [];
+    let nodew = RI(4,10);
+    let nodeh = RI(4,10);
+    let order1 = R()>.5;
+    console.log(nodew, nodeh);
     for (form = 0; form < 2; form++) {
         xs=Uint32Array.from([0,0,0,0].map((_,i)=>parseInt(tokenData.hash.substr(i*8+2,8),16)));
         nodes = [];
-        let nodew = RI(3,10);
-        let nodeh = RI(3,10);
-        let order1 = R()>.5;
         for (index = 0; index < nodew * nodeh; index++) {
             let [i, j] = order1 ? [index % nodew, index / nodew | 0] : [index / nodeh | 0, index % nodeh]
             let x = lerp(.05,.95, (i + .5) / nodew) + (.5-R()) * .05;
@@ -627,9 +671,10 @@ function main() {
 
     //glyph program
         //set up the ping program
-    glyphProgram = createProgram(src_v, src_glyph);
+    glyphProgram = createProgram(glyph_v, src_glyph);
     gl.useProgram(glyphProgram)
     loc_a_glyph = gl.getAttribLocation(glyphProgram, 'a');
+    loc_b_glyph = gl.getAttribLocation(glyphProgram, 'b');
     loc_c_glyph = gl.getUniformLocation(glyphProgram, 'c');
     
     //create a buffer and vao for glyph
@@ -638,7 +683,7 @@ function main() {
     gl.bindVertexArray(vao_glyph);
     gl.enableVertexAttribArray(loc_a_glyph);
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer_glyph);
-    gl.vertexAttribPointer(loc_a_glyph, 2, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(loc_a_glyph, 3, gl.FLOAT, false, 0, 0);
 
     //draw glyph
     gl.bindFramebuffer(gl.FRAMEBUFFER,glyph);
@@ -649,20 +694,20 @@ function main() {
     gl.bindVertexArray(vao_glyph);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.ONE, gl.ONE);
-    let glyphpositions =    new Float32Array(paths[0].flat());
+    let glyphpositions =    new Float32Array(flatWithLength(paths[0]));
     gl.uniform2f(loc_c_glyph,0,255);
     gl.bufferData(gl.ARRAY_BUFFER, glyphpositions, gl.STATIC_DRAW);
-    gl.drawArrays(gl.LINE_LOOP, 0, glyphpositions.length/2.);
-    glyphpositions =    new Float32Array(paths[1].flat());
+    gl.drawArrays(gl.LINE_LOOP, 0, glyphpositions.length/3.);
+    glyphpositions =    new Float32Array(flatWithLength(paths[1]));
     gl.uniform2f(loc_c_glyph,255,0);
     gl.bufferData(gl.ARRAY_BUFFER, glyphpositions, gl.STATIC_DRAW);
-    gl.drawArrays(gl.LINE_LOOP, 0, glyphpositions.length/2.);
+    gl.drawArrays(gl.LINE_LOOP, 0, glyphpositions.length/3.);
     gl.uniform2f(loc_c_glyph,255,255);
     for (let i = 0; i < pebbles.length/2; i++) {
       p = pebbles[i][0];
-      let pts = new Float32Array(notsquare(p.x,p.y,.02,RI(3,6)).flat());
+      let pts = new Float32Array(flatWithLength(notsquare(p.x,p.y,.02,RI(3,6))));
       gl.bufferData(gl.ARRAY_BUFFER, pts, gl.STATIC_DRAW);
-      gl.drawArrays(gl.LINE_LOOP, 0, pts.length/2.);
+      gl.drawArrays(gl.LINE_LOOP, 0, pts.length/3.);
 
     }
     gl.disable(gl.BLEND);
