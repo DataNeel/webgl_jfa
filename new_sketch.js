@@ -209,7 +209,6 @@ void main() {
     else if (showDist) {
       cc = t;
     }
-    // cc = t; 
 }`;
 
 
