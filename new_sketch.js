@@ -192,7 +192,7 @@ void main() {
     // float dist2 = aastep(mod(d2,space),n2+width)-aastep(mod(d2,space),n2-width);
 
     float dist = step(d1,.002);
-    float dist2 = step(d1,.0075);
+    float dist2 = step(d2,.0075);
 
     vec4 c1 = vec4(59, 0, 134,255.)/255.;
     vec4 c2 = vec4(227, 208, 216,255.)/255.;
@@ -592,7 +592,7 @@ function main() {
             });
         
         }
-        for (let i = 0; i < nodes.length*.25; i++) {
+        for (let i = 0; i < nodes.length*.1; i++) {
           let pi = RI(0,nodes.length-1);
           let p = nodes.splice(pi,1);
           if (R()>.25) {
