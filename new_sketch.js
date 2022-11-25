@@ -1,8 +1,21 @@
 //broken
 //0x788746d8311589f8ba527c9b7aeb15579ca4c06871272ee7cd7dda29311fd79d
 //0xa7ce56a0e65f548b7f98942a43d93b89cec00b6f4dd8da6b50fa2b1db818e5a5
-//0x887e5ec185b6b668a22926f00869eacd33bbad3f11e9b8136a0023aca3a12c5b
+// 0x887e5ec185b6b668a22926f00869eacd33bbad3f11e9b8136a0023aca3a12c5b
 
+//keyboard shit
+showBones = 0;
+showDist = 0;
+document.addEventListener('keydown', (event) => {
+  var name = event.key;
+  var code = event.code;
+  // Alert the key name and key code on keydown
+  if (['1','2','3'].includes(name)) {
+    showBones = name == 2? 1:0;
+    showDist = name == 3? 1:0;
+  }
+  
+}, false);
 
 const TWO_PI = 6.28318530717958647693;
 function genTokenData(projectNum) {
@@ -70,6 +83,9 @@ out vec4 cc;
 uniform vec2 res;
 uniform float time;
 uniform sampler2D jfa;
+uniform sampler2D bones;
+uniform bool showBones;
+uniform bool showDist;
 
 
 vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
@@ -156,6 +172,7 @@ float aastep(float threshold, float value) {
 void main() {
     vec2 uv = gl_FragCoord.xy/res;
     vec4 t = texture(jfa,uv);
+    vec4 boneT = texture(bones,uv);
     // uv.x *= res.x/res.y;
     float d1 = distance(vec2(t.x,t.y),uv)*2.;
     float d2 = distance(vec2(t.b,t.a),uv)*2.;
@@ -171,9 +188,11 @@ void main() {
     float space = 15.*max(d1*d2,.0016);
     float width = space*.15;
  
-    float dist = aastep(mod(d1,space),n1+width)-aastep(mod(d1,space),n1-width);
-    float dist2 = aastep(mod(d2,space),n2+width)-aastep(mod(d2,space),n2-width);
+    // float dist = aastep(mod(d1,space),n1+width)-aastep(mod(d1,space),n1-width);
+    // float dist2 = aastep(mod(d2,space),n2+width)-aastep(mod(d2,space),n2-width);
 
+    float dist = step(d1,.002);
+    float dist2 = step(d1,.0075);
 
     vec4 c1 = vec4(59, 0, 134,255.)/255.;
     vec4 c2 = vec4(227, 208, 216,255.)/255.;
@@ -184,8 +203,13 @@ void main() {
     vec4 cb = mix(c3,c4,dist);
     cc = mix(ca,cb,dist2);
 
-    //debug change
-    cc = t; 
+    if (showBones) {
+      cc = boneT;
+    }
+    else if (showDist) {
+      cc = t;
+    }
+    // cc = t; 
 }`;
 
 
@@ -780,10 +804,13 @@ function main() {
     gl.uniform2f(loc_res_main,resx,resy);
     loc_time_main = gl.getUniformLocation(mainProgram, 'time');
     loc_buffer_main = gl.getUniformLocation(mainProgram, 'jfa');
+    loc_bones_main = gl.getUniformLocation(mainProgram, 'bones');
+    loc_showBones_main = gl.getUniformLocation(mainProgram, 'showBones');
+    loc_showDist_main = gl.getUniformLocation(mainProgram, 'showDist');
     loc_a_main = gl.getAttribLocation(mainProgram, 'a');
     // //debug change
-    // gl.uniform1i(loc_buffer_main,1);
-    gl.uniform1i(loc_buffer_main,0);
+    gl.uniform1i(loc_buffer_main,1);
+    gl.uniform1i(loc_bones_main,0);
     
 
     //create a buffer and vao for main canvas
@@ -899,6 +926,8 @@ function main() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.useProgram(mainProgram);
         gl.uniform1f(loc_time_main,time);
+        gl.uniform1i(loc_showBones_main,showBones);
+        gl.uniform1i(loc_showDist_main,showDist);
         gl.bindVertexArray(vao_main);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
         firstframe = false;
