@@ -71,7 +71,7 @@ out vec4 cc;
 uniform vec2 c;
 
 void main() {
-    cc=vec4(c,bl,255.);
+    cc=vec4(c,bl,1);
 }`;
 
 // fragment shader for main canvas
@@ -718,14 +718,14 @@ function main() {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.ONE, gl.ONE);
     let glyphpositions =    new Float32Array(flatWithLength(paths[0]));
-    gl.uniform2f(loc_c_glyph,0,255);
+    gl.uniform2f(loc_c_glyph,0,1);
     gl.bufferData(gl.ARRAY_BUFFER, glyphpositions, gl.STATIC_DRAW);
     gl.drawArrays(gl.LINE_LOOP, 0, glyphpositions.length/3.);
     glyphpositions =    new Float32Array(flatWithLength(paths[1]));
-    gl.uniform2f(loc_c_glyph,255,0);
+    gl.uniform2f(loc_c_glyph,1,0);
     gl.bufferData(gl.ARRAY_BUFFER, glyphpositions, gl.STATIC_DRAW);
     gl.drawArrays(gl.LINE_LOOP, 0, glyphpositions.length/3.);
-    gl.uniform2f(loc_c_glyph,255,255);
+    gl.uniform2f(loc_c_glyph,1,1);
     for (let i = 0; i < pebbles.length/2; i++) {
       p = pebbles[i][0];
       let pts = new Float32Array(flatWithLength(notsquare(p.x,p.y,.02,RI(3,6))));
