@@ -29,7 +29,7 @@ function genTokenData(projectNum) {
     return data;
   }
   let tokenData = genTokenData(109);
-  // tokenData.hash = '0x65a492f1e1afcc471b7f847cbacf3dfa1c97da2c0a774f35ae139af7cf20e0aa';
+  tokenData.hash = '0xfe7f3aba50202bee6b904bc7c6a51da31df8211263b117324233e736055443af';
   console.log(tokenData.hash);
   
 
@@ -235,11 +235,9 @@ uniform sampler2D glyph;
 void main() {
     vec2 uv = u * .5 + .5;
     cc=vec4(999.);
-    vec4 t = texture(glyph,uv);
-    float r = step(.1,t.r);
-    float g = step(.1,t.g);
-    if(r>0.1)cc=vec4(uv,cc.ba);
-    if(g>0.1)cc=vec4(cc.rg,uv);
+    vec4 t = texelFetch(glyph,ivec2(gl_FragCoord.xy),0);
+    if(t.r>0.)cc=vec4(uv,cc.ba);
+    if(t.g>0.)cc=vec4(cc.rg,uv);
 }`;
 
 //fragment shader for ping
@@ -634,7 +632,7 @@ function main() {
         let c1 = new crawler(RV(nodes));
             c1.keepCrawling();
             // console.log(c1);
-
+            c1.allPath.push(c1.allPath[0]);
             let ap = chaikinPath(c1.allPath,3,[.1,.9])
             let norms = calculateNormals(ap);
             let vo = offset(ap,norms,.005 - form*.0045);
