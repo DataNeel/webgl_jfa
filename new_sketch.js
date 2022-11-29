@@ -55,10 +55,10 @@ glyph_v = `#version 300 es
 precision highp float;
 in vec3 a;
 out vec2 u;
-out float bl;
+out float l;
 void main() {
   u = a.xy * 2. - 1.;
-  bl = a.z;
+  l = a.z;
   gl_Position = vec4(u,0,1);
 }`;
 
@@ -66,12 +66,23 @@ src_glyph = `#version 300 es
 precision highp float;
 
 in vec2 u;
-in float bl;
+in float l;
 out vec4 cc;
-uniform vec2 c;
+uniform int c;
 
 void main() {
-    cc=vec4(c,bl,1);
+  if (c == 0) {
+    cc=vec4(l,0,0,1);
+  }
+  else if (c == 1) {
+    cc=vec4(0,l,0,1);
+  }
+  else if (c == 2) {
+    cc=vec4(l,l,0,1);
+  }
+  else {
+    cc=vec4(0,0,0,1);
+  }
 }`;
 
 // fragment shader for main canvas
@@ -718,14 +729,14 @@ function main() {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.ONE, gl.ONE);
     let glyphpositions =    new Float32Array(flatWithLength(paths[0]));
-    gl.uniform2f(loc_c_glyph,0,1);
+    gl.uniform1i(loc_c_glyph,0);
     gl.bufferData(gl.ARRAY_BUFFER, glyphpositions, gl.STATIC_DRAW);
     gl.drawArrays(gl.LINE_LOOP, 0, glyphpositions.length/3.);
     glyphpositions =    new Float32Array(flatWithLength(paths[1]));
-    gl.uniform2f(loc_c_glyph,1,0);
+    gl.uniform1i(loc_c_glyph,1);
     gl.bufferData(gl.ARRAY_BUFFER, glyphpositions, gl.STATIC_DRAW);
     gl.drawArrays(gl.LINE_LOOP, 0, glyphpositions.length/3.);
-    gl.uniform2f(loc_c_glyph,1,1);
+    gl.uniform1i(loc_c_glyph,2);
     for (let i = 0; i < pebbles.length/2; i++) {
       p = pebbles[i][0];
       let pts = new Float32Array(flatWithLength(notsquare(p.x,p.y,.02,RI(3,6))));
