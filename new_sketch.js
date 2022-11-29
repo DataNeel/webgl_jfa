@@ -183,16 +183,16 @@ float aastep(float threshold, float value) {
 void main() {
     vec2 uv = gl_FragCoord.xy/res;
     vec4 t = texture(jfa,uv);
-    vec4 boneT = texture(bones,uv);
+    vec4 boneT = texture(bones,t.xy);
     // uv.x *= res.x/res.y;
-    float d1 = distance(vec2(t.x,t.y),uv)*2.;
-    float d2 = distance(vec2(t.b,t.a),uv)*2.;
+    float d1 = distance(vec2(t.x,t.y),uv);
+    float d2 = distance(vec2(t.b,t.a),uv);
     //not sure, but makes a difference
-    float d = .005;
+    // float d = .005;
     //.1 to .3
-    float scale = .2;
-    float n1 = d + snoise(vec3(uv*50.,time*.5))*d*scale;
-    float n2 = d + snoise(vec3(uv*30.,-time*.5))*d*scale;
+    // float scale = .2;
+    // float n1 = d + snoise(vec3(uv*50.,time*.5))*d*scale;
+    // float n2 = d + snoise(vec3(uv*30.,-time*.5))*d*scale;
     
     //12 to 22 for the first number
     //0025 to 0005 for the last number
@@ -202,8 +202,8 @@ void main() {
     // float dist = aastep(mod(d1,space),n1+width)-aastep(mod(d1,space),n1-width);
     // float dist2 = aastep(mod(d2,space),n2+width)-aastep(mod(d2,space),n2-width);
 
-    float dist = step(d1,.002);
-    float dist2 = step(d2,.0075);
+    float dist = step(sin(max(d1,.001)*320.),.0);
+    float dist2 = step(sin(max(d2,.001)*322.),.0);
 
     vec4 c1 = vec4(59, 0, 134,255.)/255.;
     vec4 c2 = vec4(227, 208, 216,255.)/255.;
@@ -542,7 +542,7 @@ class crawler {
     for (i in p) {
       newP.push(p[i][0]);
       newP.push(p[i][1]);
-      newP.push(l[i]);
+      newP.push(l[i]+.001);
     }
     return newP;
   }
@@ -671,7 +671,7 @@ function main() {
     let resx, resy;
     let w = innerWidth,
     h = innerHeight,
-    dpr = devicePixelRatio;
+    dpr = devicePixelRatio * 3;
     let minRes = Math.min(w, h);
     h = w =  minRes * 1.;
     // w = h * 16/9;
