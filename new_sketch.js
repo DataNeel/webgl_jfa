@@ -185,30 +185,19 @@ void main() {
     vec4 t = texture(jfa,uv);
     vec4 boneT = texture(bones,uv);
     // uv.x *= res.x/res.y;
-    float d1 = distance(vec2(t.x,t.y),uv)*2.;
-    float d2 = distance(vec2(t.b,t.a),uv)*2.;
+    float d1 = distance(vec2(t.x,t.y),gl_FragCoord.xy)/res.x;
+    float d2 = distance(vec2(t.b,t.a),gl_FragCoord.xy)/res.x;
     //not sure, but makes a difference
-    float d = .005;
-    //.1 to .3
-    float scale = .2;
-    float n1 = d + snoise(vec3(uv*50.,time*.5))*d*scale;
-    float n2 = d + snoise(vec3(uv*30.,-time*.5))*d*scale;
-    
-    //12 to 22 for the first number
-    //0025 to 0005 for the last number
-    float space = 15.*max(d1*d2,.0016);
-    float width = space*.15;
+
+
  
-    float dist = aastep(mod(d1,space),n1+width)-aastep(mod(d1,space),n1-width);
-    float dist2 = aastep(mod(d2,space),n2+width)-aastep(mod(d2,space),n2-width);
+    float dist = (1.-step(.025,d1))*step(0.,sin(d1*800.));
+    float dist2 = (1.-step(.025,d2))*step(0.,sin(d2*800.));
 
-    // float dist = step(d1,.002);
-    // float dist2 = step(d2,.0075);
-
-    vec4 c1 = vec4(59, 0, 134,255.)/255.;
-    vec4 c2 = vec4(227, 208, 216,255.)/255.;
-    vec4 c3 = vec4(180, 62, 143,255.)/255.;
-    vec4 c4 = vec4(114, 225, 209,255.)/255.;
+    vec4 c1 = vec4(22, 38, 46,255.)/255.;
+    vec4 c2 = vec4(46, 71, 86,255.)/255.;
+    vec4 c3 = vec4(60, 122, 137,255.)/255.;
+    vec4 c4 = vec4(242, 244, 243,255.)/255.;
     
     vec4 ca = mix(c1,c2,dist);
     vec4 cb = mix(c3,c4,dist);
@@ -218,7 +207,7 @@ void main() {
       cc = boneT;
     }
     else if (showDist) {
-      cc = t;
+      cc = t/res.x;
     }
 }`;
 
@@ -236,8 +225,8 @@ void main() {
     vec2 uv = u * .5 + .5;
     cc=vec4(999.);
     vec4 t = texelFetch(glyph,ivec2(gl_FragCoord.xy),0);
-    if(t.r>0.)cc=vec4(uv,cc.ba);
-    if(t.g>0.)cc=vec4(cc.rg,uv);
+    if(t.r>0.)cc=vec4(gl_FragCoord.xy,cc.ba);
+    if(t.g>0.)cc=vec4(cc.rg,gl_FragCoord.xy);
 }`;
 
 //fragment shader for ping
@@ -261,12 +250,13 @@ void main() {
        for (float j = -1.; j <=1.; j++) {
           ivec2 pix = ivec2(gl_FragCoord.xy)+ivec2(i,j)*offset;
           vec4 t2 = texelFetch(pong,pix,0);
-           float new_dist = length(t2.xy-uv);
+
+           float new_dist = length(t2.xy/res-uv);
            if (new_dist<bestDistR) {
                t.rg = t2.rg;
                bestDistR = new_dist;
            }
-           new_dist = length(t2.ba-uv);
+           new_dist = length(t2.ba/res-uv);
            if (new_dist<bestDistG) {
                 t.ba = t2.ba;
                 bestDistG = new_dist;
@@ -671,7 +661,7 @@ function main() {
     dpr = devicePixelRatio * 2;
     let minRes = Math.min(w, h);
     h = w =  minRes * 1.;
-    // w = h * 16/9;
+    w = h * 16/9;
     resx = C.width = w * dpr | 0;
     resy = C.height = h * dpr | 0;
     // resx, resy = 1024;
