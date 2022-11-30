@@ -265,7 +265,6 @@ void main() {
    }
 	cc=t;;
 }`;
-let steps_override =20.;
 
 //fragment shader for pong
 src_pong = `#version 300 es
@@ -871,7 +870,7 @@ function main() {
         gl.bindVertexArray(vao_ping);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
         let steps = Math.ceil(Math.log2(Math.max(resx,resy)));
-         steps = Math.min(steps,steps_override);
+        console.log(steps);
 			let frame=0
         for (let i = 0; i <steps; i++) {
             //pong
