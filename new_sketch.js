@@ -247,7 +247,6 @@ in vec2 u;
 out vec4 cc;
 uniform vec2 res;
 uniform sampler2D pong;
-uniform float jfa_step;
 uniform float frame;
 
 void main() {
@@ -273,10 +272,7 @@ void main() {
            }
        }
    }
-	cc=t;//+texture(pong, fract(uv));
-	// cc/=2.;
-   // cc = ;
-////cc.a=1.;
+	cc=t;;
 }`;
 let steps_override =20.;
 
@@ -767,7 +763,6 @@ function main() {
 		gl.uniform2f(loc_res_ping,resx,resy);
     loc_pong_ping = gl.getUniformLocation(pingProgram, 'pong');
     loc_a_ping = gl.getAttribLocation(pingProgram, 'a');
-    loc_step_ping = gl.getUniformLocation(pingProgram,'jfa_step');
     loc_frame_ping = gl.getUniformLocation(pingProgram,'frame');
     gl.useProgram(pingProgram);
     gl.uniform1i(loc_pong_ping,0);
@@ -905,8 +900,6 @@ function main() {
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
             gl.useProgram(pingProgram);
             gl.uniform1i(loc_pong_ping,2);
-            let step = 2**(Math.log2(resx)-i-1);
-            gl.uniform1f(loc_step_ping,step);
             gl.uniform1f(loc_frame_ping,frame);
             gl.bindVertexArray(vao_ping);
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
