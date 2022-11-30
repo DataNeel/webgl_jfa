@@ -218,7 +218,7 @@ void main() {
       cc = boneT;
     }
     else if (showDist) {
-      cc = t/res.x;
+      cc = (t/max(res.x,res.y));
     }
 }`;
 
@@ -671,7 +671,7 @@ function main() {
     dpr = devicePixelRatio * 2;
     let minRes = Math.min(w, h);
     h = w =  minRes * 1.;
-    w = h * 16/9;
+    // w = h * 16/9;
     resx = C.width = w * dpr | 0;
     resy = C.height = h * dpr | 0;
     // resx, resy = 1024;
