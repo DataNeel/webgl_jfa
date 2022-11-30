@@ -185,10 +185,8 @@ void main() {
     vec4 t = texture(jfa,uv);
     vec4 boneT = texture(bones,uv);
     // uv.x *= res.x/res.y;
-    float d1 = distance(vec2(t.x,t.y),gl_FragCoord.xy)/res.x;
-    float d2 = distance(vec2(t.b,t.a),gl_FragCoord.xy)/res.x;
-    //not sure, but makes a difference
-
+    float d1 = 2.5*distance(vec2(t.x,t.y),gl_FragCoord.xy)/res.x;
+    float d2 = 2.5*distance(vec2(t.b,t.a),gl_FragCoord.xy)/res.x;
     //not sure, but makes a difference
     float d = .005;
     //.1 to .3
@@ -199,14 +197,14 @@ void main() {
     //12 to 22 for the first number
     //0025 to 0005 for the last number
     float space = 15.*max(d1*d2,.0016);
-    float width = space*.05;
+    float width = space*.15;
  
-    
-    
+    float dist = aastep(mod(d1,space),n1+width)-aastep(mod(d1,space),n1-width);
+    float dist2 = aastep(mod(d2,space),n2+width)-aastep(mod(d2,space),n2-width);
 
+    // float dist = step(d1,.002);
+    // float dist2 = step(d2,.0075);
 
-    float dist = (1. - step(.02+n1,d1)) * step(0.,sin(d1*1000.));
-    float dist2 = (1. - step(.02+n2,d2)) * step(0.,sin(d2*1000.));
     vec4 c1 = vec4(37, 78, 112,255.)/255.;
     vec4 c2 = vec4(55, 113, 142,255.)/255.;
     vec4 c3 = vec4(142, 227, 239,255.)/255.;
@@ -577,8 +575,8 @@ function main() {
         nodes = [];
         for (index = 0; index < nodew * nodeh; index++) {
             let [i, j] = order1 ? [index % nodew, index / nodew | 0] : [index / nodeh | 0, index % nodeh]
-            let x = lerp(.05,.95, (i + .5) / nodew) + (.5-R()) * .05;
-            let y = lerp(.05,.95, (j + .5) / nodeh) + (.5-R()) * .05;
+            let x = lerp(.1,.9, (i + .5) / nodew) + (.5-R()) * .05;
+            let y = lerp(.1,.9, (j + .5) / nodeh) + (.5-R()) * .05;
             nodes.push({
             x: x,
             y: y,
