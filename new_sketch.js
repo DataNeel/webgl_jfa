@@ -253,13 +253,14 @@ void main() {
     vec2 uv = gl_FragCoord.xy/res;
     
    vec2 onePixel = vec2(.5) / pow(2.,frame);
+   ivec2 offset = ivec2(max(gl_FragCoord.x, gl_FragCoord.y) * .5 / pow(2.,frame));
    vec4 t = vec4(0.);
    float bestDistR = 99999.;
    float bestDistG = 99999.;
    for (float i = -1.; i <=1.; i++) {
        for (float j = -1.; j <=1.; j++) {
-           vec2 uv_s = fract(uv+vec2(i,j)*onePixel);
-           vec4 t2 = texelFetch(pong,ivec2(uv_s*res),0);
+          ivec2 pix = ivec2(gl_FragCoord.xy)+ivec2(i,j)*offset;
+          vec4 t2 = texelFetch(pong,pix,0);
            float new_dist = length(t2.xy-uv);
            if (new_dist<bestDistR) {
                t.rg = t2.rg;
@@ -879,7 +880,7 @@ function main() {
         
         gl.bindVertexArray(vao_ping);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-        let steps = Math.ceil(Math.log2(resx));
+        let steps = Math.ceil(Math.log2(Math.max(resx,resy)));
          steps = Math.min(steps,steps_override);
 			let frame=0
         for (let i = 0; i <steps; i++) {
