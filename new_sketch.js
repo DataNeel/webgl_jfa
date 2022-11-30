@@ -189,15 +189,28 @@ void main() {
     float d2 = distance(vec2(t.b,t.a),gl_FragCoord.xy)/res.x;
     //not sure, but makes a difference
 
-
+    //not sure, but makes a difference
+    float d = .005;
+    //.1 to .3
+    float scale = .2;
+    float n1 = d + snoise(vec3(uv*50.,time*.5))*d*scale;
+    float n2 = d + snoise(vec3(uv*30.,-time*.5))*d*scale;
+    
+    //12 to 22 for the first number
+    //0025 to 0005 for the last number
+    float space = 15.*max(d1*d2,.0016);
+    float width = space*.05;
  
-    float dist = (1.-step(.025,d1))*step(0.,sin(d1*800.));
-    float dist2 = (1.-step(.025,d2))*step(0.,sin(d2*800.));
+    
+    
 
-    vec4 c1 = vec4(22, 38, 46,255.)/255.;
-    vec4 c2 = vec4(46, 71, 86,255.)/255.;
-    vec4 c3 = vec4(60, 122, 137,255.)/255.;
-    vec4 c4 = vec4(242, 244, 243,255.)/255.;
+
+    float dist = (1. - step(.02+n1,d1)) * step(0.,sin(d1*1000.));
+    float dist2 = (1. - step(.02+n2,d2)) * step(0.,sin(d2*1000.));
+    vec4 c1 = vec4(37, 78, 112,255.)/255.;
+    vec4 c2 = vec4(55, 113, 142,255.)/255.;
+    vec4 c3 = vec4(142, 227, 239,255.)/255.;
+    vec4 c4 = vec4(195, 60, 84,255.)/255.;
     
     vec4 ca = mix(c1,c2,dist);
     vec4 cb = mix(c3,c4,dist);
