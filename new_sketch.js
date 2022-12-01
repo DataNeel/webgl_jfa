@@ -234,7 +234,7 @@ uniform sampler2D glyph;
 
 void main() {
     vec2 uv = u * .5 + .5;
-    cc=vec4(999.);
+    cc=vec4(-99.);
     vec4 t = texelFetch(glyph,ivec2(gl_FragCoord.xy),0);
     if(t.r>0.)cc=vec4(gl_FragCoord.xy,cc.ba);
     if(t.g>0.)cc=vec4(cc.rg,gl_FragCoord.xy);
@@ -575,8 +575,8 @@ function main() {
         nodes = [];
         for (index = 0; index < nodew * nodeh; index++) {
             let [i, j] = order1 ? [index % nodew, index / nodew | 0] : [index / nodeh | 0, index % nodeh]
-            let x = lerp(.1,.9, (i + .5) / nodew) + (.5-R()) * .05;
-            let y = lerp(.1,.9, (j + .5) / nodeh) + (.5-R()) * .05;
+            let x = lerp(.05,.95, (i + .5) / nodew) + (.5-R()) * .05;
+            let y = lerp(.05,.95, (j + .5) / nodeh) + (.5-R()) * .05;
             nodes.push({
             x: x,
             y: y,
