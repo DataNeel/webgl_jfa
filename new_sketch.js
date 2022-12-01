@@ -30,7 +30,7 @@ function genTokenData(projectNum) {
     return data;
   }
   let tokenData = genTokenData(109);
-  // tokenData.hash = '0x37977f0d213819afcbc15c5742f5e79b133707b6411e494ae437938b9348c014';
+  tokenData.hash = '0xdbc40ce527597bd1f83b777c994bf22599d047617e494fad2022d9b4abdb19f4';
   console.log(tokenData.hash);
   
 
@@ -192,13 +192,15 @@ void main() {
     //not sure, but makes a difference
     float d = .5;
     //.1 to .3
-    float scale = .051;
+    float scale = .0251;
     float n1 = d + snoise(vec3(uv*50.,time*.5))*scale;
     float n2 = d + snoise(vec3(uv*100.,-time*.5))*scale;
+    // float n3 = d + snoise(vec3(uv*250.,-time*.5));
     
    float width = 10.;
     float dist = step(d1,width*n1) * step(0.,sin(d1*14.4*n1*sin(d1*.6*n1)));
-    float dist2 = step(d2,width*n2)*step(0.,sin(d1*3.4*n2*sin(d1*.76*n2)));;
+    float dist2 = step(d2,width*n2)*step(0.,sin(d2*30.4*n2*sin(d2*.076*n2)));;
+    // dist += step(width*n1,max(d1,d2)) * step(1.75-min(d1,d2)*.05,n3);
 
     vec4 c1 = vec4(22,54,120,255.)/255.;
     vec4 c2 = vec4(86,172,159,255.)/255.;
@@ -213,7 +215,7 @@ void main() {
       cc = boneT;
     }
     else if (showDist) {
-      cc = (t/max(res.x,res.y));
+      cc = vec4(vec2(t.ba)/max(res.x,res.y),1.,1.);
     }
 }`;
 
@@ -229,10 +231,10 @@ uniform sampler2D glyph;
 
 void main() {
     vec2 uv = u * .5 + .5;
-    cc=vec4(-99000.);
+    cc=vec4(-999.);
     vec4 t = texelFetch(glyph,ivec2(gl_FragCoord.xy),0);
-    if(t.r>0.)cc=vec4(gl_FragCoord.xy,cc.ba);
-    if(t.g>0.)cc=vec4(cc.rg,gl_FragCoord.xy);
+    if(t.r>0.0)cc=vec4(gl_FragCoord.xy,cc.ba);
+    if(t.g>0.0)cc=vec4(cc.rg,gl_FragCoord.xy);
 }`;
 
 //fragment shader for ping
@@ -247,11 +249,10 @@ uniform float frame;
 void main() {
     vec2 uv = gl_FragCoord.xy/res;
     
-   vec2 onePixel = vec2(.5) / pow(2.,frame);
    ivec2 offset = ivec2(max(gl_FragCoord.x, gl_FragCoord.y) * .5 / pow(2.,frame));
-   vec4 t = vec4(0.);
-   float bestDistR = 99999.;
-   float bestDistG = 99999.;
+   vec4 t = texelFetch(pong,ivec2(gl_FragCoord.xy),0);
+   float bestDistR = length(t.xy/res-uv);
+   float bestDistG = length(t.ba/res-uv);
    for (float i = -1.; i <=1.; i++) {
        for (float j = -1.; j <=1.; j++) {
           ivec2 pix = ivec2(gl_FragCoord.xy)+ivec2(i,j)*offset;
@@ -276,14 +277,11 @@ void main() {
 src_pong = `#version 300 es
 precision highp float;
 
-in vec2 u;
 out vec4 cc;
-uniform vec2 res;
 uniform sampler2D ping;
 
 void main() {
-    vec2 uv = gl_FragCoord.xy/res;
-    cc = texture(ping,uv);
+    cc = texelFetch(ping,ivec2(gl_FragCoord.xy),0);
 }`;
 
 //function to create shader
