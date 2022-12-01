@@ -1,3 +1,4 @@
+let c1;
 //broken
 //0x788746d8311589f8ba527c9b7aeb15579ca4c06871272ee7cd7dda29311fd79d
 //0xa7ce56a0e65f548b7f98942a43d93b89cec00b6f4dd8da6b50fa2b1db818e5a5
@@ -29,7 +30,7 @@ function genTokenData(projectNum) {
     return data;
   }
   let tokenData = genTokenData(109);
-  tokenData.hash = '0x37977f0d213819afcbc15c5742f5e79b133707b6411e494ae437938b9348c014';
+  // tokenData.hash = '0x37977f0d213819afcbc15c5742f5e79b133707b6411e494ae437938b9348c014';
   console.log(tokenData.hash);
   
 
@@ -199,10 +200,10 @@ void main() {
     float dist = step(d1,4.*n1) * step(0.,sin(d1*24.4*n1*sin(d1*2.6*n1)));
     float dist2 = step(d2,4.*n2)*step(0.,sin(d1*3.4*n2*sin(d1*.6*n2)));;
 
-    vec4 c1 = vec4(1, 42, 54,255.)/255.;
-    vec4 c2 = vec4(255, 225, 86,255.)/255.;
-    vec4 c3 = vec4(233, 114, 76,255.)/255.;
-    vec4 c4 = vec4(69, 126, 172,255.)/255.;
+    vec4 c1 = vec4(22,54,120,255.)/255.;
+    vec4 c2 = vec4(86,172,159,255.)/255.;
+    vec4 c3 = vec4(216,234,253,255.)/255.;
+    vec4 c4 = vec4(188,43,43,255.)/255.;
     
     vec4 ca = mix(c1,c2,dist);
     vec4 cb = mix(c3,c4,dist);
@@ -228,7 +229,7 @@ uniform sampler2D glyph;
 
 void main() {
     vec2 uv = u * .5 + .5;
-    cc=vec4(-99.);
+    cc=vec4(-99000.);
     vec4 t = texelFetch(glyph,ivec2(gl_FragCoord.xy),0);
     if(t.r>0.)cc=vec4(gl_FragCoord.xy,cc.ba);
     if(t.g>0.)cc=vec4(cc.rg,gl_FragCoord.xy);
@@ -441,7 +442,6 @@ class crawler {
        }
       }
       this.allPath.pop();
-      // print(c1.allPath[0],c1.allPath[c1.allPath.length-1]);
     }
    }
 
@@ -620,7 +620,7 @@ function main() {
             }
         }
         }
-        let c1 = new crawler(RV(nodes));
+        c1 = new crawler(RV(nodes));
             c1.keepCrawling();
             // console.log(c1);
             c1.allPath.push(c1.allPath[0]);
