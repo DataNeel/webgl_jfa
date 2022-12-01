@@ -29,7 +29,7 @@ function genTokenData(projectNum) {
     return data;
   }
   let tokenData = genTokenData(109);
-  // tokenData.hash = '0xfe7f3aba50202bee6b904bc7c6a51da31df8211263b117324233e736055443af';
+  tokenData.hash = '0x37977f0d213819afcbc15c5742f5e79b133707b6411e494ae437938b9348c014';
   console.log(tokenData.hash);
   
 
@@ -185,30 +185,24 @@ void main() {
     vec4 t = texture(jfa,uv);
     vec4 boneT = texture(bones,uv);
     // uv.x *= res.x/res.y;
-    float d1 = 2.5*distance(vec2(t.x,t.y),gl_FragCoord.xy)/res.x;
-    float d2 = 2.5*distance(vec2(t.b,t.a),gl_FragCoord.xy)/res.x;
+    float dscale = 100.;
+    float d1 = dscale*distance(vec2(t.x,t.y),gl_FragCoord.xy)/max(res.x,res.y);
+    float d2 = dscale*distance(vec2(t.b,t.a),gl_FragCoord.xy)/max(res.x,res.y);
     //not sure, but makes a difference
     float d = .005;
     //.1 to .3
-    float scale = .2;
+    float scale = 1.2;
     float n1 = d + snoise(vec3(uv*50.,time*.5))*d*scale;
     float n2 = d + snoise(vec3(uv*30.,-time*.5))*d*scale;
     
-    //12 to 22 for the first number
-    //0025 to 0005 for the last number
-    float space = 15.*max(d1*d2,.0016);
-    float width = space*.15;
- 
-    float dist = aastep(mod(d1,space),n1+width)-aastep(mod(d1,space),n1-width);
-    float dist2 = aastep(mod(d2,space),n2+width)-aastep(mod(d2,space),n2-width);
+   
+    float dist = step(d1,4.5) * step(0.,sin(d1*7.4)*sin(d1*1.3));
+    float dist2 = step(d2,4.)*step(0.,sin(d1*3.4)*sin(d1*.3));;
 
-    // float dist = step(d1,.002);
-    // float dist2 = step(d2,.0075);
-
-    vec4 c1 = vec4(37, 78, 112,255.)/255.;
-    vec4 c2 = vec4(55, 113, 142,255.)/255.;
-    vec4 c3 = vec4(142, 227, 239,255.)/255.;
-    vec4 c4 = vec4(195, 60, 84,255.)/255.;
+    vec4 c1 = vec4(0,0,0,255.)/255.;
+    vec4 c2 = vec4(255,0,0,255.)/255.;
+    vec4 c3 = vec4(0,255,0,255.)/255.;
+    vec4 c4 = vec4(0,0,255,255.)/255.;
     
     vec4 ca = mix(c1,c2,dist);
     vec4 cb = mix(c3,c4,dist);
