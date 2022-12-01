@@ -192,13 +192,13 @@ void main() {
     //not sure, but makes a difference
     float d = .5;
     //.1 to .3
-    float scale = .1;
+    float scale = .051;
     float n1 = d + snoise(vec3(uv*50.,time*.5))*scale;
     float n2 = d + snoise(vec3(uv*100.,-time*.5))*scale;
     
-   
-    float dist = step(d1,4.*n1) * step(0.,sin(d1*24.4*n1*sin(d1*2.6*n1)));
-    float dist2 = step(d2,4.*n2)*step(0.,sin(d1*3.4*n2*sin(d1*.6*n2)));;
+   float width = 10.;
+    float dist = step(d1,width*n1) * step(0.,sin(d1*14.4*n1*sin(d1*.6*n1)));
+    float dist2 = step(d2,width*n2)*step(0.,sin(d1*3.4*n2*sin(d1*.76*n2)));;
 
     vec4 c1 = vec4(22,54,120,255.)/255.;
     vec4 c2 = vec4(86,172,159,255.)/255.;
