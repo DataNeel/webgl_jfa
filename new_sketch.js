@@ -189,20 +189,20 @@ void main() {
     float d1 = dscale*distance(vec2(t.x,t.y),gl_FragCoord.xy)/max(res.x,res.y);
     float d2 = dscale*distance(vec2(t.b,t.a),gl_FragCoord.xy)/max(res.x,res.y);
     //not sure, but makes a difference
-    float d = .005;
+    float d = .5;
     //.1 to .3
-    float scale = 1.2;
-    float n1 = d + snoise(vec3(uv*50.,time*.5))*d*scale;
-    float n2 = d + snoise(vec3(uv*30.,-time*.5))*d*scale;
+    float scale = .1;
+    float n1 = d + snoise(vec3(uv*50.,time*.5))*scale;
+    float n2 = d + snoise(vec3(uv*100.,-time*.5))*scale;
     
    
-    float dist = step(d1,4.5) * step(0.,sin(d1*7.4)*sin(d1*1.3));
-    float dist2 = step(d2,4.)*step(0.,sin(d1*3.4)*sin(d1*.3));;
+    float dist = step(d1,4.*n1) * step(0.,sin(d1*24.4*n1*sin(d1*2.6*n1)));
+    float dist2 = step(d2,4.*n2)*step(0.,sin(d1*3.4*n2*sin(d1*.6*n2)));;
 
-    vec4 c1 = vec4(0,0,0,255.)/255.;
-    vec4 c2 = vec4(255,0,0,255.)/255.;
-    vec4 c3 = vec4(0,255,0,255.)/255.;
-    vec4 c4 = vec4(0,0,255,255.)/255.;
+    vec4 c1 = vec4(1, 42, 54,255.)/255.;
+    vec4 c2 = vec4(255, 225, 86,255.)/255.;
+    vec4 c3 = vec4(233, 114, 76,255.)/255.;
+    vec4 c4 = vec4(69, 126, 172,255.)/255.;
     
     vec4 ca = mix(c1,c2,dist);
     vec4 cb = mix(c3,c4,dist);
