@@ -30,7 +30,7 @@ function genTokenData(projectNum) {
     return data;
   }
   let tokenData = genTokenData(109);
-  tokenData.hash = '0xdbc40ce527597bd1f83b777c994bf22599d047617e494fad2022d9b4abdb19f4';
+  // tokenData.hash = '0xdbc40ce527597bd1f83b777c994bf22599d047617e494fad2022d9b4abdb19f4';
   console.log(tokenData.hash);
   
 
@@ -98,6 +98,8 @@ uniform sampler2D jfa;
 uniform sampler2D bones;
 uniform bool showBones;
 uniform bool showDist;
+
+
 
 
 vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
@@ -182,9 +184,12 @@ float aastep(float threshold, float value) {
 }
 
 void main() {
+  float pi = 3.14159265359;
     vec2 uv = gl_FragCoord.xy/res;
     vec4 t = texture(jfa,uv);
     vec4 boneT = texture(bones,uv);
+    float boneR = texelFetch(bones,ivec2(t.rg),0).r;
+    float boneG = texelFetch(bones,ivec2(t.ba),0).g;
     // uv.x *= res.x/res.y;
     float dscale = 100.;
     float d1 = dscale*distance(vec2(t.x,t.y),gl_FragCoord.xy)/max(res.x,res.y);
@@ -193,14 +198,18 @@ void main() {
     float d = .5;
     //.1 to .3
     float scale = .0251;
-    float n1 = d + snoise(vec3(uv*50.,time*.5))*scale;
-    float n2 = d + snoise(vec3(uv*100.,-time*.5))*scale;
-    // float n3 = d + snoise(vec3(uv*250.,-time*.5));
+    float n1 = .5;//d + snoise(vec3(uv*50.,time*.5))*scale;
+    float n2 = .5;//d + snoise(vec3(uv*100.,-time*.5))*scale;
     
    float width = 10.;
-    float dist = step(d1,width*n1) * step(0.,sin(d1*14.4*n1*sin(d1*.6*n1)));
+    float dist = step(d1,width*n1) * step(0.,sin(d1*14.4*sin(d1*.6*n1)));
     float dist2 = step(d2,width*n2)*step(0.,sin(d2*30.4*n2*sin(d2*.076*n2)));;
-    // dist += step(width*n1,max(d1,d2)) * step(1.75-min(d1,d2)*.05,n3);
+    dist = step(d1,width*n1);
+    dist2 = step(d2,width*n2);
+
+   dist *= step(.5,(sin(boneR*100.)+1.)/2.);
+   dist2 *= step(.5,(sin(boneG*300.)+1.)/2.);
+
 
     vec4 c1 = vec4(22,54,120,255.)/255.;
     vec4 c2 = vec4(86,172,159,255.)/255.;
@@ -210,6 +219,8 @@ void main() {
     vec4 ca = mix(c1,c2,dist);
     vec4 cb = mix(c3,c4,dist);
     cc = mix(ca,cb,dist2);
+
+    // cc = vec4(vec3(sin(boneR*10.)),1.);
 
     if (showBones) {
       cc = boneT;
@@ -520,7 +531,8 @@ class crawler {
     }
     ml = l[l.length-1];
     for (i in l) {
-      l[i] /=ml;
+      ///debug
+      // l[i] /=ml;
     }
     return l;
   }
@@ -715,6 +727,7 @@ function main() {
     gl.bindVertexArray(vao_glyph);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.ONE, gl.ONE);
+    
     let glyphpositions =    new Float32Array(flatWithLength(paths[0]));
     gl.uniform1i(loc_c_glyph,0);
     gl.bufferData(gl.ARRAY_BUFFER, glyphpositions, gl.STATIC_DRAW);
