@@ -33,7 +33,7 @@ function genTokenData(projectNum) {
     return data;
   }
   let tokenData = genTokenData(109);
-  tokenData.hash = '0x10b08e945a2d61be3438521b83630187890518d639e2edebdd9e0a79cfd246c9';
+  // tokenData.hash = '0x10b08e945a2d61be3438521b83630187890518d639e2edebdd9e0a79cfd246c9';
   console.log(tokenData.hash);
   
 
@@ -213,7 +213,7 @@ void main() {
 
     dist *= step(n1-.5,sin(4.1*d1)*sin(d1));
     dist2 *= step(n2-.5,sin(3.2*d2)*sin(d2));
-    float sand = step(.5,(1.-step(min(d1,d2),width)) * step(.4,sin(d1*10.)) * ((sin(boneR*10000.*boneG)+1.)/2.) * n3);
+    float sand = step(.7,(1.-(step(min(d1,d2),width*.7))) * step(.4,sin(d1*10.)) * ((sin(boneR*10000.*sin(boneG*1000.))+1.)/2.) *n3);
     // dist += sand;
     dist2+= sand*.3;
  
@@ -229,13 +229,13 @@ void main() {
     //debug stuff
     
     if (showBones) {
-      cc = boneT;
+      cc = vec4(step(0.00001,boneT.r),step(0.00001,boneT.g),0.,1.);
     }
     else if (showDist) {
       cc = vec4(vec2(t.ba)/max(res.x,res.y),1.,1.);
     }
     else if (showGradient) {
-      cc = vec4(vec3((sin(boneG*boneR*1000.)+1.)/2.),1.);
+      cc = vec4(vec3(sin(boneR*10.)),1.);
     }
 }`;
 
@@ -580,8 +580,8 @@ class crawler {
 function main() {
     let paths = [];
     pebbles = [];
-    let nodew = RI(5,11);
-    let nodeh = RI(4,8);
+    let nodeh = RI(5,11);
+    let nodew = RI(4,8);
     let order1 = R()>.5;
     console.log(nodew, nodeh);
     for (form = 0; form < 2; form++) {

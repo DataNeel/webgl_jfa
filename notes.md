@@ -20,9 +20,7 @@ https://github.com/cacheflowe/haxademic/blob/master/src/com/haxademic/demo/draw/
 
 * dial in pebbles and negative space
 
-* adapting to a different aspect ratio (involves handling dimensions in the shader)
-
-* smoothing out some edges (they’re literally bumpy, and I have some hypotheses as to why)
+* graph in function and retry if it sucks
 
 
 * Handling more variables (dimensions, width, density, etc)
@@ -30,7 +28,14 @@ https://github.com/cacheflowe/haxademic/blob/master/src/com/haxademic/demo/draw/
     * pebble count
     * color
 
+* use string substitution for shader variables
+
+* try more vertices to smooth out slope
 
 * adding slight texture in the negative space
 
 * jfa enhancements
+
+
+* fix bottom left
+* fix large empty space
