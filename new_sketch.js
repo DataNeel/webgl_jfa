@@ -30,7 +30,7 @@ function genTokenData(projectNum) {
     return data;
   }
   let tokenData = genTokenData(109);
-  tokenData.hash = '0xdbc40ce527597bd1f83b777c994bf22599d047617e494fad2022d9b4abdb19f4';
+  // tokenData.hash = '0xdbc40ce527597bd1f83b777c994bf22599d047617e494fad2022d9b4abdb19f4';
   console.log(tokenData.hash);
   
 
@@ -184,37 +184,31 @@ float aastep(float threshold, float value) {
 }
 
 void main() {
+  vec2 uv = gl_FragCoord.xy/res;
   float pi = 3.14159265359;
     vec4 t = texelFetch(jfa,ivec2(gl_FragCoord.xy),0);
     vec4 boneT = texelFetch(bones,ivec2(gl_FragCoord.xy),0);
     float boneR = texelFetch(bones,ivec2(t.rg),0).r;
     float boneG = texelFetch(bones,ivec2(t.ba),0).g;
 
-    float dscale = 100.;
+    float dscale = 200.;
     float d1 = dscale*length(vec2(t.x,t.y)-gl_FragCoord.xy)/max(res.x,res.y);
     float d2 = dscale*length(vec2(t.b,t.a)-gl_FragCoord.xy)/max(res.x,res.y);
 
     //not sure, but makes a difference
     float d = .5;
     //.1 to .3
-    float scale = .0251;
-    float n1 = .5;//d + snoise(vec3(uv*50.,time*.5))*scale;
-    float n2 = .5;//d + snoise(vec3(uv*100.,-time*.5))*scale;
+    float scale = .08;
+    float n1 = d + snoise(vec3(uv*50.,time*.5))*scale;
+    float n2 = d + snoise(vec3(uv*100.,-time*.5))*scale;
     
-   float width = 3.;
-    float dist = step(d1,width*n1) * step(0.,sin(d1*14.4*sin(d1*.6*n1)));
-    float dist2 = step(d2,width*n2)*step(0.,sin(d2*30.4*n2*sin(d2*.076*n2)));;
-    dist = step(d1,width*n1);
-    dist2 = step(d2,width*n2);
+   float width = 10.;
+    float dist = step(d1,width*n1);// * step(0.,sin(d1*14.4*sin(d1*.6*n1)));
+    float dist2 = step(d2,width*n2);//*step(0.,sin(d2*30.4*n2*sin(d2*.076*n2)));;
 
-  //  dist *= step(.5,(sin(boneR*100.)+1.)/2.);
-  //  dist2 *= step(.5,(sin(boneG*300.)+1.)/2.);
-
-
-  //test thing
-  // dist = smoothstep(.49,.5,(sin(boneR*10.)+1.)/2.);
-  // dist2 = smoothstep(.49,.5,(sin(boneG*10.)+1.)/2.);
-
+    dist *= step(n1-.5,sin(4.*d1)*sin(d1));
+    dist2 *= step(n2-.5,sin(3.*d2)*sin(d2));
+ 
     vec4 c1 = vec4(22,54,120,255.)/255.;
     vec4 c2 = vec4(86,172,159,255.)/255.;
     vec4 c3 = vec4(216,234,253,255.)/255.;
