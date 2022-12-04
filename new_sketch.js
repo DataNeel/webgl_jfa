@@ -30,7 +30,7 @@ function genTokenData(projectNum) {
     return data;
   }
   let tokenData = genTokenData(109);
-  // tokenData.hash = '0xdbc40ce527597bd1f83b777c994bf22599d047617e494fad2022d9b4abdb19f4';
+  tokenData.hash = '0xdbc40ce527597bd1f83b777c994bf22599d047617e494fad2022d9b4abdb19f4';
   console.log(tokenData.hash);
   
 
@@ -185,15 +185,15 @@ float aastep(float threshold, float value) {
 
 void main() {
   float pi = 3.14159265359;
-    vec2 uv = gl_FragCoord.xy/res;
-    vec4 t = texture(jfa,uv);
-    vec4 boneT = texture(bones,uv);
+    vec4 t = texelFetch(jfa,ivec2(gl_FragCoord.xy),0);
+    vec4 boneT = texelFetch(bones,ivec2(gl_FragCoord.xy),0);
     float boneR = texelFetch(bones,ivec2(t.rg),0).r;
     float boneG = texelFetch(bones,ivec2(t.ba),0).g;
-    // uv.x *= res.x/res.y;
+
     float dscale = 100.;
-    float d1 = dscale*distance(vec2(t.x,t.y),gl_FragCoord.xy)/max(res.x,res.y);
-    float d2 = dscale*distance(vec2(t.b,t.a),gl_FragCoord.xy)/max(res.x,res.y);
+    float d1 = dscale*length(vec2(t.x,t.y)-gl_FragCoord.xy)/max(res.x,res.y);
+    float d2 = dscale*length(vec2(t.b,t.a)-gl_FragCoord.xy)/max(res.x,res.y);
+
     //not sure, but makes a difference
     float d = .5;
     //.1 to .3
@@ -201,15 +201,19 @@ void main() {
     float n1 = .5;//d + snoise(vec3(uv*50.,time*.5))*scale;
     float n2 = .5;//d + snoise(vec3(uv*100.,-time*.5))*scale;
     
-   float width = 10.;
+   float width = 3.;
     float dist = step(d1,width*n1) * step(0.,sin(d1*14.4*sin(d1*.6*n1)));
     float dist2 = step(d2,width*n2)*step(0.,sin(d2*30.4*n2*sin(d2*.076*n2)));;
     dist = step(d1,width*n1);
     dist2 = step(d2,width*n2);
 
-   dist *= step(.5,(sin(boneR*100.)+1.)/2.);
-   dist2 *= step(.5,(sin(boneG*300.)+1.)/2.);
+  //  dist *= step(.5,(sin(boneR*100.)+1.)/2.);
+  //  dist2 *= step(.5,(sin(boneG*300.)+1.)/2.);
 
+
+  //test thing
+  // dist = smoothstep(.49,.5,(sin(boneR*10.)+1.)/2.);
+  // dist2 = smoothstep(.49,.5,(sin(boneG*10.)+1.)/2.);
 
     vec4 c1 = vec4(22,54,120,255.)/255.;
     vec4 c2 = vec4(86,172,159,255.)/255.;
@@ -220,8 +224,9 @@ void main() {
     vec4 cb = mix(c3,c4,dist);
     cc = mix(ca,cb,dist2);
 
-    // cc = vec4(vec3(sin(boneR*10.)),1.);
-
+    //debug stuff
+    // cc = vec4(vec3((sin(boneR*10.)+1.)/2.),1.);
+    // if(vec2(t.x,t.y)==vec2(0.))cc=vec4(1.);
     if (showBones) {
       cc = boneT;
     }
@@ -237,12 +242,10 @@ precision highp float;
 
 in vec2 u;
 out vec4 cc;
-uniform vec2 res;
 uniform sampler2D glyph;
 
 void main() {
-    vec2 uv = u * .5 + .5;
-    cc=vec4(-999.);
+    cc=vec4(-100000000000.);
     vec4 t = texelFetch(glyph,ivec2(gl_FragCoord.xy),0);
     if(t.r>0.0)cc=vec4(gl_FragCoord.xy,cc.ba);
     if(t.g>0.0)cc=vec4(cc.rg,gl_FragCoord.xy);
@@ -258,27 +261,30 @@ uniform sampler2D pong;
 uniform float frame;
 
 void main() {
-    vec2 uv = gl_FragCoord.xy/res;
     
-   ivec2 offset = ivec2(max(gl_FragCoord.x, gl_FragCoord.y) * .5 / pow(2.,frame));
+   ivec2 offset = ivec2(max(res.x, res.y) * .5 / pow(2.,frame));
    vec4 t = texelFetch(pong,ivec2(gl_FragCoord.xy),0);
-   float bestDistR = length(t.xy/res-uv);
-   float bestDistG = length(t.ba/res-uv);
+   float bestDistR = length(t.xy-gl_FragCoord.xy);
+   float bestDistG = length(t.ba-gl_FragCoord.xy);
    for (float i = -1.; i <=1.; i++) {
        for (float j = -1.; j <=1.; j++) {
           ivec2 pix = ivec2(gl_FragCoord.xy)+ivec2(i,j)*offset;
           vec4 t2 = texelFetch(pong,pix,0);
-
-           float new_dist = length(t2.xy/res-uv);
+          float new_dist = 0.;
+          if (t2.x > 0.) {
+           new_dist = length(t2.xy-gl_FragCoord.xy);
            if (new_dist<bestDistR) {
                t.rg = t2.rg;
                bestDistR = new_dist;
            }
-           new_dist = length(t2.ba/res-uv);
+          }
+          if (t2.b > 0.) {
+           new_dist = length(t2.ba - gl_FragCoord.xy);
            if (new_dist<bestDistG) {
                 t.ba = t2.ba;
                 bestDistG = new_dist;
            }
+          }
        }
    }
 	cc=t;;
@@ -570,8 +576,8 @@ class crawler {
 function main() {
     let paths = [];
     pebbles = [];
-    let nodew = RI(4,10);
-    let nodeh = RI(4,10);
+    let nodew = RI(5,11);
+    let nodeh = RI(4,8);
     let order1 = R()>.5;
     console.log(nodew, nodeh);
     for (form = 0; form < 2; form++) {
@@ -675,7 +681,7 @@ function main() {
     dpr = devicePixelRatio * 2;
     let minRes = Math.min(w, h);
     h = w =  minRes * 1.;
-    // w = h * 16/9;
+     h = w * 9/16;
     resx = C.width = w * dpr | 0;
     resy = C.height = h * dpr | 0;
     // resx, resy = 1024;
@@ -885,11 +891,16 @@ function main() {
         
         gl.bindVertexArray(vao_ping);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-        let steps = Math.ceil(Math.log2(Math.max(resx,resy)));
+        var steps = Math.ceil(Math.log2(Math.max(resx,resy)));
         console.log(steps);
 			let frame=0
-        for (let i = 0; i <steps; i++) {
+        for (let i = -1; i <steps+5; i++) {
             //pong
+            let frame = i;
+            if (i == -1) {
+              frame = steps-1;
+            }
+            
             gl.bindFramebuffer(gl.FRAMEBUFFER,pong);
             gl.viewport(0,0,resx,resy);
             gl.clearColor(0, 0, 1, 1);
@@ -906,11 +917,11 @@ function main() {
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
             gl.useProgram(pingProgram);
             gl.uniform1i(loc_pong_ping,2);
-            gl.uniform1f(loc_frame_ping,frame);
+            gl.uniform1f(loc_frame_ping,Math.min(frame,steps));
             gl.bindVertexArray(vao_ping);
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
-					frame++
+
         }
 
 
