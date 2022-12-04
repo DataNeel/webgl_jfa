@@ -7,13 +7,16 @@ let c1;
 //keyboard shit
 showBones = 0;
 showDist = 0;
+showGradient = 0;
 document.addEventListener('keydown', (event) => {
   var name = event.key;
   var code = event.code;
   // Alert the key name and key code on keydown
-  if (['1','2','3'].includes(name)) {
+  if (['1','2','3','4'].includes(name)) {
     showBones = name == 2? 1:0;
     showDist = name == 3? 1:0;
+    showGradient = name == 4? 1:0;
+    console.log(name);
   }
   
 }, false);
@@ -30,7 +33,7 @@ function genTokenData(projectNum) {
     return data;
   }
   let tokenData = genTokenData(109);
-  // tokenData.hash = '0xdbc40ce527597bd1f83b777c994bf22599d047617e494fad2022d9b4abdb19f4';
+  tokenData.hash = '0x10b08e945a2d61be3438521b83630187890518d639e2edebdd9e0a79cfd246c9';
   console.log(tokenData.hash);
   
 
@@ -98,6 +101,7 @@ uniform sampler2D jfa;
 uniform sampler2D bones;
 uniform bool showBones;
 uniform bool showDist;
+uniform bool showGradient;
 
 
 
@@ -201,13 +205,17 @@ void main() {
     float scale = .08;
     float n1 = d + snoise(vec3(uv*50.,time*.5))*scale;
     float n2 = d + snoise(vec3(uv*100.,-time*.5))*scale;
+    float n3 = d+ snoise(vec3(uv*200.,time*.01));
     
    float width = 10.;
-    float dist = step(d1,width*n1);// * step(0.,sin(d1*14.4*sin(d1*.6*n1)));
-    float dist2 = step(d2,width*n2);//*step(0.,sin(d2*30.4*n2*sin(d2*.076*n2)));;
+    float dist = step(d1,width*n1); 
+    float dist2 = step(d2,width*n2);
 
-    dist *= step(n1-.5,sin(4.*d1)*sin(d1));
-    dist2 *= step(n2-.5,sin(3.*d2)*sin(d2));
+    dist *= step(n1-.5,sin(4.1*d1)*sin(d1));
+    dist2 *= step(n2-.5,sin(3.2*d2)*sin(d2));
+    float sand = step(.5,(1.-step(min(d1,d2),width)) * step(.4,sin(d1*10.)) * ((sin(boneR*10000.*boneG)+1.)/2.) * n3);
+    // dist += sand;
+    dist2+= sand*.3;
  
     vec4 c1 = vec4(22,54,120,255.)/255.;
     vec4 c2 = vec4(86,172,159,255.)/255.;
@@ -219,13 +227,15 @@ void main() {
     cc = mix(ca,cb,dist2);
 
     //debug stuff
-    // cc = vec4(vec3((sin(boneR*10.)+1.)/2.),1.);
-    // if(vec2(t.x,t.y)==vec2(0.))cc=vec4(1.);
+    
     if (showBones) {
       cc = boneT;
     }
     else if (showDist) {
       cc = vec4(vec2(t.ba)/max(res.x,res.y),1.,1.);
+    }
+    else if (showGradient) {
+      cc = vec4(vec3((sin(boneG*boneR*1000.)+1.)/2.),1.);
     }
 }`;
 
@@ -672,10 +682,11 @@ function main() {
     let resx, resy;
     let w = innerWidth,
     h = innerHeight,
-    dpr = devicePixelRatio * 2;
-    let minRes = Math.min(w, h);
+    dpr = devicePixelRatio *2;
+    let minRes = h;//w;//Math.min(w, h);
     h = w =  minRes * 1.;
-     h = w * 9/16;
+    //  h = w * 9/16;
+    w = h * 4/5;
     resx = C.width = w * dpr | 0;
     resy = C.height = h * dpr | 0;
     // resx, resy = 1024;
@@ -816,6 +827,7 @@ function main() {
     loc_bones_main = gl.getUniformLocation(mainProgram, 'bones');
     loc_showBones_main = gl.getUniformLocation(mainProgram, 'showBones');
     loc_showDist_main = gl.getUniformLocation(mainProgram, 'showDist');
+    loc_showGradient_main = gl.getUniformLocation(mainProgram, 'showGradient');
     loc_a_main = gl.getAttribLocation(mainProgram, 'a');
     // //debug change
     gl.uniform1i(loc_buffer_main,1);
@@ -940,6 +952,7 @@ function main() {
         gl.uniform1f(loc_time_main,time);
         gl.uniform1i(loc_showBones_main,showBones);
         gl.uniform1i(loc_showDist_main,showDist);
+        gl.uniform1i(loc_showGradient_main,showGradient);
         gl.bindVertexArray(vao_main);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
         firstframe = false;
