@@ -1,13 +1,10 @@
 let c1;
 //broken
-//0x788746d8311589f8ba527c9b7aeb15579ca4c06871272ee7cd7dda29311fd79d
-//0xa7ce56a0e65f548b7f98942a43d93b89cec00b6f4dd8da6b50fa2b1db818e5a5
-// 0x887e5ec185b6b668a22926f00869eacd33bbad3f11e9b8136a0023aca3a12c5b
 
 //keyboard shit
 showBones = 0;
 showDist = 0;
-showGradient = 0;
+showGradient = 1;
 document.addEventListener('keydown', (event) => {
   var name = event.key;
   var code = event.code;
@@ -33,7 +30,7 @@ function genTokenData(projectNum) {
     return data;
   }
   let tokenData = genTokenData(109);
-  // tokenData.hash = '0x10b08e945a2d61be3438521b83630187890518d639e2edebdd9e0a79cfd246c9';
+  // tokenData.hash = '0x887e5ec185b6b668a22926f00869eacd33bbad3f11e9b8136a0023aca3a12c5b';
   console.log(tokenData.hash);
   
 
@@ -195,48 +192,28 @@ void main() {
     float boneR = texelFetch(bones,ivec2(t.rg),0).r;
     float boneG = texelFetch(bones,ivec2(t.ba),0).g;
 
-    float dscale = 200.;
-    float d1 = dscale*length(vec2(t.x,t.y)-gl_FragCoord.xy)/max(res.x,res.y);
-    float d2 = dscale*length(vec2(t.b,t.a)-gl_FragCoord.xy)/max(res.x,res.y);
+    float dscale = 0.;
+  //   float d1 = dscale*length(vec2(t.x,t.y)-gl_FragCoord.xy)/max(res.x,res.y);
+    // float d2 = dscale*length(vec2(t.b,t.a)-gl_FragCoord.xy)/max(res.x,res.y);
 
-    //not sure, but makes a difference
-    float d = .5;
-    //.1 to .3
-    float scale = .08;
-    float n1 = d + snoise(vec3(uv*50.,time*.5))*scale;
-    float n2 = d + snoise(vec3(uv*100.,-time*.5))*scale;
-    float n3 = d+ snoise(vec3(uv*200.,time*.01));
-    
-   float width = 10.;
-    float dist = step(d1,width*n1); 
-    float dist2 = step(d2,width*n2);
 
-    dist *= step(n1-.5,sin(4.1*d1)*sin(d1));
-    dist2 *= step(n2-.5,sin(3.2*d2)*sin(d2));
-    float sand = step(.7,(1.-(step(min(d1,d2),width*.7))) * step(.4,sin(d1*10.)) * ((sin(boneR*10000.*sin(boneG*1000.))+1.)/2.) *n3);
-    // dist += sand;
-    dist2+= sand*.3;
- 
-    vec4 c1 = vec4(22,54,120,255.)/255.;
-    vec4 c2 = vec4(86,172,159,255.)/255.;
-    vec4 c3 = vec4(216,234,253,255.)/255.;
-    vec4 c4 = vec4(188,43,43,255.)/255.;
+  float dist = pow(clamp(sin(boneR*20.+time/5.),0.,1.),2.);
+  float dist2 = pow(clamp(sin(boneG*10.+time/2.),0.,1.),5.);
+    vec4 c1 = vec4(11, 10, 7,255)/255.;
+    vec4 c2 = vec4(44, 87, 132,255.)/255.;
+    vec4 c3 = vec4(86, 136, 199,255.)/255.;
+    vec4 c4 = vec4(208, 244, 234,255.)/255.;
     
     vec4 ca = mix(c1,c2,dist);
     vec4 cb = mix(c3,c4,dist);
     cc = mix(ca,cb,dist2);
+    // cc = mix(c1,c2,dist);
 
-    //debug stuff
-    
     if (showBones) {
-      cc = vec4(step(0.00001,boneT.r),step(0.00001,boneT.g),0.,1.);
+      cc = boneT;
     }
-    else if (showDist) {
-      cc = vec4(vec2(t.ba)/max(res.x,res.y),1.,1.);
-    }
-    else if (showGradient) {
-      cc = vec4(vec3(sin(boneR*10.)),1.);
-    }
+    
+  
 }`;
 
 
@@ -530,7 +507,7 @@ class crawler {
       VOs.push(VO);
     }
     return VOs;
-  }
+  }  
 
   function lengthOnPath(p) {
     let l = [];
@@ -541,7 +518,7 @@ class crawler {
     }
     ml = l[l.length-1];
     for (i in l) {
-      ///debug
+      ///
       // l[i] /=ml;
     }
     return l;
@@ -580,8 +557,8 @@ class crawler {
 function main() {
     let paths = [];
     pebbles = [];
-    let nodeh = RI(5,11);
-    let nodew = RI(4,8);
+    let nodew = RI(5,9);
+    let nodeh = RI(3,7);
     let order1 = R()>.5;
     console.log(nodew, nodeh);
     for (form = 0; form < 2; form++) {
@@ -633,7 +610,7 @@ function main() {
             var b1 = Boolean(Math.abs(nodes[i].i - nodes[j].i) == rules[0]) && Boolean(Math.abs(nodes[i].j - nodes[j].j) == rules[1] ) ;
             var b2 = Boolean(Math.abs(nodes[i].j - nodes[j].j) == rules[2]) && Boolean(Math.abs(nodes[i].i - nodes[j].i) == rules[3]) ;
             // let dropProb = lerp(maxDropProb,minDropProb,(lifeform)/(forms))
-            let dropProb = .8 - .1 * form;
+            let dropProb = 1. - .3 * form;
             if (Boolean(b1 || b2) && Math.abs(nodes[i].r-nodes[j].r) < dropProb) {
             nodes[i].neighbors.push(nodes[j]);
             nodes[j].neighbors.push(nodes[i]);
@@ -644,9 +621,9 @@ function main() {
             c1.keepCrawling();
             // console.log(c1);
             c1.allPath.push(c1.allPath[0]);
-            let ap = chaikinPath(c1.allPath,3,[.1,.9])
+            let ap = chaikinPath(c1.allPath,10,[.15,.85])
             let norms = calculateNormals(ap);
-            let vo = offset(ap,norms,.005 - form*.0045);
+            let vo = offset(ap,norms,.001);
           
             paths.push(vo);
     }
@@ -683,10 +660,10 @@ function main() {
     let w = innerWidth,
     h = innerHeight,
     dpr = devicePixelRatio *2;
-    let minRes = h;//w;//Math.min(w, h);
+    let minRes = w;//Math.min(w, h);
     h = w =  minRes * 1.;
-    //  h = w * 9/16;
-    w = h * 4/5;
+     h = w * 9/16;
+    // w = h * 4/5;
     resx = C.width = w * dpr | 0;
     resy = C.height = h * dpr | 0;
     // resx, resy = 1024;
