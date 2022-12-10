@@ -4,7 +4,7 @@ let c1;
 //keyboard shit
 showBones = 0;
 showDist = 0;
-showGradient = 1;
+showGradient = 0;
 document.addEventListener('keydown', (event) => {
   var name = event.key;
   var code = event.code;
@@ -30,7 +30,7 @@ function genTokenData(projectNum) {
     return data;
   }
   let tokenData = genTokenData(109);
-  // tokenData.hash = '0x887e5ec185b6b668a22926f00869eacd33bbad3f11e9b8136a0023aca3a12c5b';
+  // tokenData.hash = '0xd5b83154add2532e9aa73269b5c232a02ed4ee0d131125682baec16cd306049e';
   console.log(tokenData.hash);
   
 
@@ -192,25 +192,42 @@ void main() {
     float boneR = texelFetch(bones,ivec2(t.rg),0).r;
     float boneG = texelFetch(bones,ivec2(t.ba),0).g;
 
-    float dscale = 0.;
-  //   float d1 = dscale*length(vec2(t.x,t.y)-gl_FragCoord.xy)/max(res.x,res.y);
+    float dscale = .1;
+    float d1 = dscale*length(vec2(t.x,t.y)-gl_FragCoord.xy)/max(res.x,res.y);
     // float d2 = dscale*length(vec2(t.b,t.a)-gl_FragCoord.xy)/max(res.x,res.y);
+    float n1 = snoise(vec3(d1*100.,boneR*200.,time*.05));
 
 
-  float dist = pow(clamp(sin(boneR*20.+time/5.),0.,1.),2.);
+  float dist = pow(step(clamp(sin(boneR*20.+time/5.),0.,1.),n1),2.);
   float dist2 = pow(clamp(sin(boneG*10.+time/2.),0.,1.),5.);
-    vec4 c1 = vec4(11, 10, 7,255)/255.;
-    vec4 c2 = vec4(44, 87, 132,255.)/255.;
-    vec4 c3 = vec4(86, 136, 199,255.)/255.;
-    vec4 c4 = vec4(208, 244, 234,255.)/255.;
+    // vec4 c1 = vec4(11, 10, 7,255)/255.;
+    // vec4 c2 = vec4(44, 87, 132,255.)/255.;
+    // vec4 c3 = vec4(86, 136, 199,255.)/255.;
+    // vec4 c4 = vec4(208, 244, 234,255.)/255.;
+
+    // vec4 c1 = vec4(22, 15, 41,255)/255.;
+    // vec4 c2 = vec4(36, 106, 115,255.)/255.;
+    // vec4 c3 = vec4(54, 143, 139,255.)/255.;
+    // vec4 c4 = vec4(243, 223, 193,255.)/255.;
     
+    vec4 c1 = vec4(0, 56, 68,255)/255.;
+    vec4 c2 = vec4(0, 108, 103,255.)/255.;
+    vec4 c3 = vec4(241, 148, 180,255.)/255.;
+    vec4 c4 = vec4(255, 177, 0,255.)/255.;
+
     vec4 ca = mix(c1,c2,dist);
     vec4 cb = mix(c3,c4,dist);
     cc = mix(ca,cb,dist2);
     // cc = mix(c1,c2,dist);
 
     if (showBones) {
-      cc = boneT;
+      cc = vec4(step(0.00000001,boneT.r),step(0.000000000001,boneT.g),step(0.000000000001,boneT.b),1.);
+    }
+    if (showGradient) {
+      cc = vec4(t.x,t.y,res.x,res.x)/res.x;
+    }
+    if (showDist) {
+      cc = vec4(sin(boneR*20.),1.,1.,1.);
     }
     
   
@@ -557,8 +574,8 @@ class crawler {
 function main() {
     let paths = [];
     pebbles = [];
-    let nodew = RI(5,9);
-    let nodeh = RI(3,7);
+    let nodeh = RI(3,5);
+    let nodew = RI(5,8);
     let order1 = R()>.5;
     console.log(nodew, nodeh);
     for (form = 0; form < 2; form++) {
@@ -566,8 +583,9 @@ function main() {
         nodes = [];
         for (index = 0; index < nodew * nodeh; index++) {
             let [i, j] = order1 ? [index % nodew, index / nodew | 0] : [index / nodeh | 0, index % nodeh]
-            let x = lerp(.05,.95, (i + .5) / nodew) + (.5-R()) * .05;
-            let y = lerp(.05,.95, (j + .5) / nodeh) + (.5-R()) * .05;
+            let nodebuffer = -.05;
+            let x = lerp(0+nodebuffer,1-nodebuffer, (i + .5) / nodew) + (.5-R()) * .05;
+            let y = lerp(0+nodebuffer,1-nodebuffer, (j + .5) / nodeh) + (.5-R()) * .05;
             nodes.push({
             x: x,
             y: y,
@@ -592,9 +610,9 @@ function main() {
         for (let i = 0; i < nodes.length*.1; i++) {
           let pi = RI(0,nodes.length-1);
           let p = nodes.splice(pi,1);
-          if (R()>.25) {
-            pebbles.push(p);
-          }
+          // if (R()>.25) {
+            // pebbles.push(p);
+          // }
           
         }
         
@@ -610,7 +628,7 @@ function main() {
             var b1 = Boolean(Math.abs(nodes[i].i - nodes[j].i) == rules[0]) && Boolean(Math.abs(nodes[i].j - nodes[j].j) == rules[1] ) ;
             var b2 = Boolean(Math.abs(nodes[i].j - nodes[j].j) == rules[2]) && Boolean(Math.abs(nodes[i].i - nodes[j].i) == rules[3]) ;
             // let dropProb = lerp(maxDropProb,minDropProb,(lifeform)/(forms))
-            let dropProb = 1. - .3 * form;
+            let dropProb = 1.- .3 * form;
             if (Boolean(b1 || b2) && Math.abs(nodes[i].r-nodes[j].r) < dropProb) {
             nodes[i].neighbors.push(nodes[j]);
             nodes[j].neighbors.push(nodes[i]);
@@ -619,11 +637,14 @@ function main() {
         }
         c1 = new crawler(RV(nodes));
             c1.keepCrawling();
-            // console.log(c1);
-            c1.allPath.push(c1.allPath[0]);
-            let ap = chaikinPath(c1.allPath,10,[.15,.85])
+            console.log(c1);
+            console.log(c1.allPath.length);
+            // c1.allPath.push(c1.allPath[0]);
+            console.log(c1.allPath.length);
+            let ap = chaikinPath(c1.allPath,10,[.1,.9])
+            ap.push(ap[0]);
             let norms = calculateNormals(ap);
-            let vo = offset(ap,norms,.001);
+            let vo = offset(ap,norms,.000005);
           
             paths.push(vo);
     }
@@ -660,9 +681,10 @@ function main() {
     let w = innerWidth,
     h = innerHeight,
     dpr = devicePixelRatio *2;
-    let minRes = w;//Math.min(w, h);
+    let minRes = h;//Math.min(w, h);
     h = w =  minRes * 1.;
-     h = w * 9/16;
+    //  h = w * 9/16;
+    w = h *5/4;
     // w = h * 4/5;
     resx = C.width = w * dpr | 0;
     resy = C.height = h * dpr | 0;
@@ -719,6 +741,7 @@ function main() {
     let glyphpositions =    new Float32Array(flatWithLength(paths[0]));
     gl.uniform1i(loc_c_glyph,0);
     gl.bufferData(gl.ARRAY_BUFFER, glyphpositions, gl.STATIC_DRAW);
+    gl.lineWidth(.1);
     gl.drawArrays(gl.LINE_LOOP, 0, glyphpositions.length/3.);
     glyphpositions =    new Float32Array(flatWithLength(paths[1]));
     gl.uniform1i(loc_c_glyph,1);
@@ -877,10 +900,10 @@ function main() {
         var steps = Math.ceil(Math.log2(Math.max(resx,resy)));
         console.log(steps);
 			let frame=0
-        for (let i = -1; i <steps+5; i++) {
+        for (let i = -2; i <steps+2; i++) {
             //pong
             let frame = i;
-            if (i == -1) {
+            if (i < 0) {
               frame = steps-1;
             }
             
