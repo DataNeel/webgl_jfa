@@ -194,12 +194,13 @@ void main() {
 
     float dscale = .1;
     float d1 = dscale*length(vec2(t.x,t.y)-gl_FragCoord.xy)/max(res.x,res.y);
-    // float d2 = dscale*length(vec2(t.b,t.a)-gl_FragCoord.xy)/max(res.x,res.y);
-    float n1 = snoise(vec3(d1*100.,boneR*200.,time*.05));
+    float d2 = dscale*length(vec2(t.b,t.a)-gl_FragCoord.xy)/max(res.x,res.y);
+    float n1 = -.1+snoise(vec3(d1*100.,boneR*200.,time*.05));
+    float n2 = -.1+snoise(vec3(d2*10.,boneG*20.,time*.05));
 
 
   float dist = pow(step(clamp(sin(boneR*20.+time/5.),0.,1.),n1),2.);
-  float dist2 = pow(clamp(sin(boneG*10.+time/2.),0.,1.),5.);
+  float dist2 = pow(clamp(sin(boneG*10.+time/2.)+.0,0.,1.),5.);
     // vec4 c1 = vec4(11, 10, 7,255)/255.;
     // vec4 c2 = vec4(44, 87, 132,255.)/255.;
     // vec4 c3 = vec4(86, 136, 199,255.)/255.;
@@ -210,10 +211,26 @@ void main() {
     // vec4 c3 = vec4(54, 143, 139,255.)/255.;
     // vec4 c4 = vec4(243, 223, 193,255.)/255.;
     
-    vec4 c1 = vec4(0, 56, 68,255)/255.;
-    vec4 c2 = vec4(0, 108, 103,255.)/255.;
-    vec4 c3 = vec4(241, 148, 180,255.)/255.;
-    vec4 c4 = vec4(255, 177, 0,255.)/255.;
+    // vec4 c1 = vec4(0, 48, 73,255)/255.;
+    // vec4 c2 = vec4(214, 40, 40,255.)/255.;
+    // vec4 c3 = vec4(247, 127, 0,255.)/255.;
+    // vec4 c4 = vec4(252, 191, 73,255.)/255.;
+
+    // vec4 c1 = vec4(0, 56, 68,255)/255.;
+    // vec4 c2 = vec4(0, 108, 103,255.)/255.;
+    // vec4 c3 = vec4(241, 148, 180,255.)/255.;
+    // vec4 c4 = vec4(255, 177, 0,255.)/255.;
+
+    vec4 c1 = vec4(30, 33, 43,255)/255.;
+    vec4 c2 = vec4(77, 139, 49,255.)/255.;
+    vec4 c3 = vec4(255, 200, 0,255.)/255.;
+    vec4 c4 = vec4(255, 132, 39,255.)/255.;
+
+    // vec4 c1 = vec4(38, 38, 38,255)/255.;
+    // vec4 c3 = vec4(158, 158, 158,255.)/255.;
+    // vec4 c2 = vec4(42, 114, 33,255.)/255.;
+    // vec4 c4 = vec4(237, 237, 237,255.)/255.;
+
 
     vec4 ca = mix(c1,c2,dist);
     vec4 cb = mix(c3,c4,dist);
@@ -574,8 +591,8 @@ class crawler {
 function main() {
     let paths = [];
     pebbles = [];
-    let nodeh = RI(3,5);
-    let nodew = RI(5,8);
+    let nodeh = RI(3,10);
+    let nodew = RI(5,12);
     let order1 = R()>.5;
     console.log(nodew, nodeh);
     for (form = 0; form < 2; form++) {
