@@ -15,7 +15,16 @@ https://www.youtube.com/watch?v=AT0jTugdi0M
 https://github.com/cacheflowe/haxademic/blob/master/data/haxademic/shaders/filters/jump-flood.glsl
 https://github.com/cacheflowe/haxademic/blob/master/src/com/haxademic/demo/draw/filters/shaders/Demo_JumpFlood_SDF.java
 
-
+-- computer angle
+    - enhanced bug to create texture
+    - aliasing created texture
+    - intentional pixelization as a feature
+    - computer color schemes
+        hyperlink blue
+        windows
+        mac
+        solarized
+        terminal
 
 
 * dial in pebbles and negative space
