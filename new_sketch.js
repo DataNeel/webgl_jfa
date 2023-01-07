@@ -39,7 +39,20 @@ function genTokenData(projectNum) {
   const RN=(a,b)=>a+(b-a)*R();
   const RI=(a,b)=>~~RN(a,b+1);
   const RV=(v)=>v[RI(0,v.length-1)];
-  
+
+
+let palettes = [
+  [[11, 10, 7],[44, 87, 132],[86, 136, 199],[208, 244, 234]] //hyperlink
+  ,[[22,15,41],[36,106,115],[54,143,139],[243,223,193]] //steel/linen
+  ,[[8, 76, 97],[219, 80, 74],[255, 208, 70],[61, 165, 217]] //primary
+  ,[[0, 48, 73],[214, 40, 40],[247, 127, 0],[252, 191, 73]] //red and orange
+  ,[[0, 56, 68],[0, 108, 103],[241, 148, 180],[255, 177, 0]] //tropical
+  ,[[30, 33, 43],[77, 139, 49],[255, 200, 0],[255, 132, 3]] //green and yellow
+  ,[[38, 38, 38],[158, 158, 158],[42, 114, 33],[237, 237, 237]] //green
+  ,[[0,	43,	54],[42,	161,	152],[211,	54,	130],[181,	137,	0]] //solarized
+];
+
+let palette = RV(palettes);
 
 let firstframe = true;
 // vertex shader 
@@ -175,14 +188,6 @@ float snoise(vec3 v){
                                 dot(p2,x2), dot(p3,x3) ) );
 }
 
-float aastep(float threshold, float value) {
-  #ifdef GL_OES_standard_derivatives
-    float afwidth = length(vec2(dFdx(value), dFdy(value))) * .70710678118654757;
-    return smoothstep(threshold-afwidth, threshold+afwidth, value);
-  #else
-    return step(threshold, value);
-  #endif  
-}
 
 void main() {
   vec2 uv = gl_FragCoord.xy/res;
@@ -201,65 +206,15 @@ void main() {
 
   float dist = pow(step(clamp(sin(boneR*20.+time/50.),0.,1.),n1),2.);
   float dist2 = pow(clamp(sin(boneG*10.+time/32.)+.0,0.,1.),5.);
-  
-  //hyperlink
-  vec4 c1 = vec4(11, 10, 7,255)/255.;
-    vec4 c2 = vec4(44, 87, 132,255.)/255.;
-    vec4 c3 = vec4(86, 136, 199,255.)/255.;
-    vec4 c4 = vec4(208, 244, 234,255.)/255.;
 
-    //steel/linen
-    // vec4 c1 = vec4(22, 15, 41,255)/255.;
-    // vec4 c2 = vec4(36, 106, 115,255.)/255.;
-    // vec4 c3 = vec4(54, 143, 139,255.)/255.;
-    // vec4 c4 = vec4(243, 223, 193,255.)/255.;
-    
-    //primary
-    // vec4 c1 = vec4(8, 76, 97,255)/255.;
-    // vec4 c4 = vec4(219, 80, 74,255.)/255.;
-    // vec4 c3 = vec4(255, 208, 70,255.)/255.;
-    // vec4 c2 = vec4(61, 165, 217,255.)/255.;
-
-    //red and orange
-    // vec4 c1 = vec4(0, 48, 73,255)/255.;
-    // vec4 c2 = vec4(214, 40, 40,255.)/255.;
-    // vec4 c3 = vec4(247, 127, 0,255.)/255.;
-    // vec4 c4 = vec4(252, 191, 73,255.)/255.;
-
-    //tropical
-    // vec4 c1 = vec4(0, 56, 68,255)/255.;
-    // vec4 c2 = vec4(0, 108, 103,255.)/255.;
-    // vec4 c3 = vec4(241, 148, 180,255.)/255.;
-    // vec4 c4 = vec4(255, 177, 0,255.)/255.;
-
-    //green and yellow
-    // vec4 c1 = vec4(30, 33, 43,255)/255.;
-    // vec4 c2 = vec4(77, 139, 49,255.)/255.;
-    // vec4 c3 = vec4(255, 200, 0,255.)/255.;
-    // vec4 c4 = vec4(255, 132, 39,255.)/255.;
-
-    //green
-    // vec4 c1 = vec4(38, 38, 38,255)/255.;
-    // vec4 c3 = vec4(158, 158, 158,255.)/255.;
-    // vec4 c2 = vec4(42, 114, 33,255.)/255.;
-    // vec4 c4 = vec4(237, 237, 237,255.)/255.;
-
-    //solarized
-    // vec4 c1 = vec4(0,	43,	54,255)/255.;
-    // vec4 c2 = vec4(42,	161,	152,255.)/255.;
-    // vec4 c3 = vec4(211,	54,	130,255.)/255.;
-    // vec4 c4 = vec4(181,	137,	0,255.)/255.;
-
-    //trash
-    // vec4 c1 = vec4(8, 76, 97,255)/255.;
-    // vec4 c2 = vec4(219, 80, 74,255.)/255.;
-    // vec4 c3 = vec4(85, 5, 39,255.)/255.;
-    // vec4 c4 = vec4(104, 142, 38,255.)/255.;
+    vec4 c1 = vec4(${palette[0].toString()},255)/255.;
+    vec4 c2 = vec4(${palette[1].toString()},255.)/255.;
+    vec4 c3 = vec4(${palette[2].toString()},255.)/255.;
+    vec4 c4 = vec4(${palette[3].toString()},255.)/255.;
 
     vec4 ca = mix(c1,c2,dist);
     vec4 cb = mix(c3,c4,dist);
     cc = mix(ca,cb,dist2);
-    // cc = mix(c1,c2,dist);
 
     if (showBones) {
       cc = vec4(step(0.00000001,boneT.r),step(0.000000000001,boneT.g),step(0.000000000001,boneT.b),1.);
